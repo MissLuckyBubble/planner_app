@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import BusinessListItem from '../components/BusinessListItem';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faBars } from '@fortawesome/free-solid-svg-icons';
 import { useIsFocused } from '@react-navigation/native';
 
 
@@ -13,8 +13,12 @@ import { Colors } from '../assets/Colors';
 
 
 const FavoriteBusinessesScreen = ({ navigation }) => {
- 
+
   const isFocused = useIsFocused();
+
+  const openDrawer = () => {
+    navigation.openDrawer();
+  }
 
   const { userToken } = useContext(AuthContext);
 
@@ -78,6 +82,9 @@ const FavoriteBusinessesScreen = ({ navigation }) => {
           <FontAwesomeIcon icon={faArrowLeft} size={24} color={Colors.dark} />
         </TouchableOpacity>
         <Text style={styles.nameText}>Любими Места</Text>
+        <TouchableOpacity onPress={openDrawer}>
+          <FontAwesomeIcon icon={faBars} size={24} color={Colors.dark} />
+        </TouchableOpacity>
       </View>
       <FlatList
         data={businesses}
@@ -111,14 +118,14 @@ const styles = StyleSheet.create({
   topContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 8,
     marginBottom: 10,
     backgroundColor: Colors.primary,
   },
   nameText: {
-    fontSize: 26,
-    marginLeft: '20%',
+    fontSize: 22,
     fontWeight: 'bold',
     color: Colors.dark,
     marginHorizontal: 16,

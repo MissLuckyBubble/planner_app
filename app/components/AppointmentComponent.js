@@ -6,6 +6,8 @@ import ServicesComponent from './ServicesComponent';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faLocationDot, faCheck, faPhone, faMoneyBill1Wave, faClock, faCalendarCheck, faUser, faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import Tooltip from 'react-native-tooltip';
 
 const AppointmentComponent = ({ appointment, cancelAppointment }) => {
     const { user } = useContext(AuthContext);
@@ -37,6 +39,11 @@ const AppointmentComponent = ({ appointment, cancelAppointment }) => {
 
     const handleToggleServices = () => {
         setShowServices(!showServices);
+    };
+
+    const handleInfoPress = () => {
+        // Handle the press event for the info icon
+        // Show additional information or perform any other action
     };
 
     return (
@@ -177,8 +184,8 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.dark
     },
     cancel_text: {
-        color:Colors.white,
-        fontSize:16,
+        color: Colors.white,
+        fontSize: 16,
     }
 });
 export default AppointmentComponent;

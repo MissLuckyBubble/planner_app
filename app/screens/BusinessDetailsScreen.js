@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.primary,
     },
     nameText: {
-        fontSize: 30,
+        fontSize: 22,
         fontWeight: 'bold',
         color: Colors.dark,
         marginHorizontal: 16,

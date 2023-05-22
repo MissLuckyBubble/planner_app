@@ -8,10 +8,19 @@ import { BASE_URL } from '../../config';
 import axios from 'axios';
 import CustomSearchBar from '../components/CustomSearchBar';
 
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faBars, faSearch, faFilter } from '@fortawesome/free-solid-svg-icons';
+import FiltersModalComponent from '../components/FiltersModalComponent';
+
+
 function HomeScreen({ navigation }) {
     const businessClicked = (id) => {
         navigation.navigate("BusinessDetails", { id });
     }
+    const openDrawer = () => {
+        navigation.openDrawer();
+    }
+
     const { userToken } = useContext(AuthContext);
     const config = {
         headers: {
@@ -47,19 +56,39 @@ function HomeScreen({ navigation }) {
         }
     };
 
-    useEffect(()=>{
-        getBusinesses();
-    },[selectedCategoryIds]);
 
     const [inputSearch, setInputSearch] = useState('');
     const handleSearch = (query) => {
         setInputSearch(query);
     };
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedFilters, setSelectedFilters] = useState(null);
+
+    const handleApplyFilters = (filters) => {
+        setSelectedFilters(filters);
+        setModalVisible(false);
+    };
+    
+
+    const handleCancelFilters = () => {
+        setModalVisible(false);
+    };
+
+    useEffect(() => {
+        getBusinesses();
+    }, [selectedCategoryIds,selectedFilters]);
+
     const [businesses, setBusinesses] = useState([]);
     const getBusinesses = async () => {
+        var city = selectedFilters ? `&city=${selectedFilters.city}` : '';
+        var sortBy = selectedFilters ?  `&sortBy=${selectedFilters.sortBy}` : '';
+        var sortOrder = selectedFilters ?  `&sortOrder=${selectedFilters.sortOrder}` : '';
+        var url = `${BASE_URL}/getAllBusinesses?search=${inputSearch}&category=${selectedCategoryIds}${city}${sortBy}${sortOrder}`;
+
         try {
             const response = await axios.get(
-                `${BASE_URL}/getAllBusinesses?search=${inputSearch}&category=${selectedCategoryIds}`,
+                url,
                 config);
             result = response.data.data[0];
             if (result)
@@ -74,7 +103,7 @@ function HomeScreen({ navigation }) {
                         address: business.address,
                         rating: business.rating,
                         numRatings: business.review_number,
-                        services: business.services_category !=undefined && business.services_category[0] && Array.isArray(business.services_category[0].services) ? business.services_category[0].services.slice(0, 2).map(s => ({
+                        services: business.services_category != undefined && business.services_category[0] && Array.isArray(business.services_category[0].services) ? business.services_category[0].services.slice(0, 2).map(s => ({
                             id: s.id,
                             name: s.title,
                             price: s.price
@@ -91,7 +120,12 @@ function HomeScreen({ navigation }) {
 
     return (
         <ScrollView style={{ flex: 1 }}>
-            <ScrollView horizontal={true} style={{ height: businesses.length > 0 ? 210 : 500}}>
+            <View style={styles.topContainer}>
+                <TouchableOpacity onPress={openDrawer}>
+                    <FontAwesomeIcon icon={faBars} size={24} color={Colors.dark} />
+                </TouchableOpacity>
+            </View>
+            <ScrollView horizontal={true} style={{ height: businesses.length > 0 ? 210 : 650 }}>
                 {categories.map(category => (
                     <TouchableOpacity
                         key={category.id}
@@ -100,8 +134,7 @@ function HomeScreen({ navigation }) {
                         style={[
                             styles.categoryButton,
                             selectedCategoryIds.includes(category.id) && styles.selectedCategoryButton,
-                        ]}
-                    >
+                        ]}>
                         <CategoryComponent
                             style={businesses.length === 0 && { marginTop: 40, }}
                             id={category.id}
@@ -120,8 +153,17 @@ function HomeScreen({ navigation }) {
                     onSearch={handleSearch}
                 />
                 <TouchableHighlight style={styles.button} onPress={getBusinesses}>
-                    <Text style={styles.text}>Търсене</Text>
+                    <FontAwesomeIcon icon={faSearch} size={24} color={Colors.dark} />
                 </TouchableHighlight>
+                <TouchableHighlight style={styles.button} onPress={() => setModalVisible(true)}>
+                    <FontAwesomeIcon icon={faFilter} size={24} color={Colors.dark} />
+                </TouchableHighlight>
+
+                <FiltersModalComponent
+                    visible={modalVisible}
+                    onClose={handleCancelFilters}
+                    onApply={handleApplyFilters}
+                />
             </View>
             {businesses.length > 0 ? (
                 <View>
@@ -151,6 +193,14 @@ function HomeScreen({ navigation }) {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
+    topContainer: {
+        flex: 1,
+        alignItems: 'flex-end',
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        marginBottom: 5,
+        backgroundColor: Colors.primary,
+    },
     categoryButton: {
         height: 205,
         paddingBottom: 5,
@@ -166,7 +216,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.primary,
     },
     button: {
-        width: '25%',
+        width: 50,
         height: 50,
         backgroundColor: Colors.primary,
         margin: 5,

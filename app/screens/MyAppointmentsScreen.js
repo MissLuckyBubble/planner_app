@@ -8,10 +8,15 @@ import { Colors } from '../assets/Colors';
 import { useIsFocused } from '@react-navigation/native';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faBars } from '@fortawesome/free-solid-svg-icons';
 
 const MyAppointmentsScreen = ({ navigation }) => {
     const isFocused = useIsFocused();
+
+    const openDrawer = () => {
+        navigation.openDrawer();
+    }
+
     const [appointments, setAppointments] = useState([]);
 
     const { userToken } = useContext(AuthContext);
@@ -54,56 +59,58 @@ const MyAppointmentsScreen = ({ navigation }) => {
         navigation.goBack();
     };
 
-    const handleCancel = (id)=>{
+    const handleCancel = (id) => {
         const url = `${BASE_URL}/customer/appointments/cancel/${id}`;
-        axios.patch(url,'',config).then((response)=>{
+        axios.patch(url, '', config).then((response) => {
             console.log(response.data);
             fetchAppointments();
-        }).catch((error)=>{
+        }).catch((error) => {
             console.error(error)
         });
     }
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <View style={styles.topContainer}>
                 <TouchableOpacity onPress={handleGoBack}>
                     <FontAwesomeIcon icon={faArrowLeft} size={24} color={Colors.dark} />
                 </TouchableOpacity>
                 <Text style={styles.nameText}>Предстоящи часове</Text>
+                <TouchableOpacity onPress={openDrawer}>
+                    <FontAwesomeIcon icon={faBars} size={24} color={Colors.dark} />
+                </TouchableOpacity>
             </View>
-            <ScrollView style={styles.scrollView}>
+            <View style={styles.scrollView}>
                 {appointments && appointments.length > 0 ? (
                     appointments.map((appointment) => (
-                        <AppointmentComponent 
-                        key={appointment.id} 
-                        appointment={appointment} 
-                        cancelAppointment={()=>handleCancel(appointment.id)}/>
+                        <AppointmentComponent
+                            key={appointment.id}
+                            appointment={appointment}
+                            cancelAppointment={() => handleCancel(appointment.id)} />
                     ))
                 ) : (
                     <Text style={styles.text}>Нямате предстоящи часове..</Text>
                 )}
-            </ScrollView>
-        </View>
+            </View>
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
     },
     topContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
         paddingHorizontal: 16,
         paddingVertical: 8,
         marginBottom: 10,
         backgroundColor: Colors.primary,
     },
     nameText: {
-        fontSize: 26,
-        marginLeft: '20%',
+        fontSize: 22,
         fontWeight: 'bold',
         color: Colors.dark,
         marginHorizontal: 16,
@@ -116,6 +123,7 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
         marginTop: 10,
+        marginHorizontal:25
     },
 });
 
