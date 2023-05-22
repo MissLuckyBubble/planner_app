@@ -12,7 +12,6 @@ import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 const MyAppointmentsScreen = ({ navigation }) => {
     const isFocused = useIsFocused();
-
     const [appointments, setAppointments] = useState([]);
 
     const { userToken } = useContext(AuthContext);
@@ -24,29 +23,30 @@ const MyAppointmentsScreen = ({ navigation }) => {
         }
     };
 
-    useEffect(() => {
-        const fetchAppointments = async () => {
-            const currentDate = new Date();
-            const year = currentDate.getFullYear();
-            const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-            const day = String(currentDate.getDate()).padStart(2, "0");
-
-            const formattedDate = `${year}/${month}/${day}`;
-            try {
-                const response = await axios.get(
-                    `${BASE_URL}/customer/appointments/getAll?date_after=${formattedDate}`,
-                    config
-                );
-                const result = response.data.data;
-                if (result) {
-                    setAppointments(result);
-                } else {
-                    setAppointments([]);
-                }
-            } catch (error) {
-                console.log(error);
+    const fetchAppointments = async () => {
+        const currentDate = new Date();
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+        const day = String(currentDate.getDate()).padStart(2, "0");
+        const status = 'Запазен';
+        const formattedDate = `${year}/${month}/${day}`;
+        try {
+            const response = await axios.get(
+                `${BASE_URL}/customer/appointments/getAll?date_after=${formattedDate}&status=${status}`,
+                config
+            );
+            const result = response.data.data;
+            if (result) {
+                setAppointments(result);
+            } else {
+                setAppointments([]);
             }
-        };
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
         fetchAppointments();
     }, [isFocused]);
 
@@ -55,9 +55,14 @@ const MyAppointmentsScreen = ({ navigation }) => {
     };
 
     const handleCancel = (id)=>{
-        console.log(`Deleting item with id ${itemId}`);
+        const url = `${BASE_URL}/customer/appointments/cancel/${id}`;
+        axios.patch(url,'',config).then((response)=>{
+            console.log(response.data);
+            fetchAppointments();
+        }).catch((error)=>{
+            console.error(error)
+        });
     }
-
 
     return (
         <View style={styles.container}>
