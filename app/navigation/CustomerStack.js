@@ -10,6 +10,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faHome, faHeart, faClock, faHistory, faUser } from '@fortawesome/free-solid-svg-icons';
 import FavoriteBusinessesScreen from '../screens/FavoriteBusinessesScreen';
+import HistoryScreen from '../screens/HistoryScreen';
 const Drawer = createDrawerNavigator();
 function CustomerStack(props) {
     return (
@@ -47,7 +48,7 @@ function CustomerStack(props) {
                 }}
                 initialParams={{ refresh: true }}
             />
-            <Drawer.Screen name="History" component={HomeScreen}
+            <Drawer.Screen name="History" component={HistoryScreen}
                 options={{
                     title: 'История',
                     drawerIcon: ({ color, size }) => (

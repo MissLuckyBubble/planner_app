@@ -9,7 +9,7 @@ import { faLocationDot, faCheck, faPhone, faMoneyBill1Wave, faClock, faCalendarC
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import Tooltip from 'react-native-tooltip';
 
-const AppointmentComponent = ({ appointment, cancelAppointment }) => {
+const AppointmentComponent = ({ appointment, cancelAppointment, rateAppiontment }) => {
     const { user } = useContext(AuthContext);
     const handlePhoneCall = () => {
         const phoneNumber = 0 + appointment.business.phoneNumber;
@@ -35,6 +35,10 @@ const AppointmentComponent = ({ appointment, cancelAppointment }) => {
             })
             .catch((error) => console.log(error));
     };
+
+    const handleBusinessPress = () => {
+        
+    }
     const [showServices, setShowServices] = useState(false);
 
     const handleToggleServices = () => {
@@ -88,10 +92,12 @@ const AppointmentComponent = ({ appointment, cancelAppointment }) => {
                         <Text style={[styles.text, styles.titleText]}>
                             Информация за мястото:
                         </Text>
-                        <Text style={styles.text}>
-                            <FontAwesomeIcon icon={faUser} style={styles.icon} size={16} />
-                            Име: {appointment.business.data.name}
-                        </Text>
+                        <TouchableOpacity onPress={handleBusinessPress}>
+                            <Text style={[styles.text, styles.linkText]}>
+                                <FontAwesomeIcon icon={faUser} style={styles.icon} size={16} />
+                                Име: {appointment.business.data.name}
+                            </Text>
+                        </TouchableOpacity>
                         <TouchableOpacity onPress={handleAddressPress}>
                             <Text style={[styles.text, styles.linkText]}>
                                 <FontAwesomeIcon icon={faLocationDot} style={styles.icon} size={16} />
@@ -121,9 +127,12 @@ const AppointmentComponent = ({ appointment, cancelAppointment }) => {
                     </View>
                 )}
             </View>
-            <TouchableOpacity style={styles.cancel} onPress={cancelAppointment}>
+            {cancelAppointment ? <TouchableOpacity style={styles.cancel} onPress={cancelAppointment}>
                 <Text style={styles.cancel_text} >Откажи</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> : ''}
+            {rateAppiontment && appointment.rated === false && appointment.status == 'Приключен' ? <TouchableOpacity style={styles.cancel} onPress={rateAppiontment}>
+                <Text style={styles.cancel_text} >Остави оценка</Text>
+            </TouchableOpacity> : ''}
         </View>
     );
 };

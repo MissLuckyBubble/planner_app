@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableHighlight, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors } from '../assets/Colors';
 import { duration } from 'moment';
-const MAX_DESCRIPTION_LENGTH = 150;
+const MAX_DESCRIPTION_LENGTH = 80;
 
 const ServicesComponent = ({ services, clickedServices, style, disabled , onServiceRemoved  }) => {
     const [isExpanded, setIsExpanded] = useState(false);

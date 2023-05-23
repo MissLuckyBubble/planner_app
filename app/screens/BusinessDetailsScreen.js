@@ -20,8 +20,8 @@ function BusinessDetailsScreen({ navigation, route }) {
         navigation.goBack();
     };
 
-    const openCommentsClicked = (id) => {
-        navigation.navigate("CommentsScreen", { id });
+    const openCommentsClicked = (businessId) => {
+        navigation.navigate("CommentsScreen", { businessId });
     }
 
     const handleLike = async () => {
@@ -98,6 +98,9 @@ function BusinessDetailsScreen({ navigation, route }) {
                     <Text style={styles.ratingText}>(От {business.review_number} ревюта)</Text>
                 </TouchableOpacity>
             </View>
+            <View style={styles.descriptionConteiner}>
+                <Text style={styles.descriptiontext}>{business.description} </Text>
+            </View>
             {
                 business.services_category ? business.services_category.map(category=>
                     <BusinessCategoriesComponent key={category.id}
@@ -159,6 +162,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 10,
         color: Colors.dark
+    },
+    descriptionConteiner:{
+        margin:5,
+        paddingHorizontal:10
     },
     button: {
         width: '100%',
