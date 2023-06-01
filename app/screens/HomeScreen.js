@@ -7,7 +7,6 @@ import CategoryComponent from '../components/CaregoriesComponent';
 import { BASE_URL } from '../../config';
 import axios from 'axios';
 import CustomSearchBar from '../components/CustomSearchBar';
-
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBars, faSearch, faFilter } from '@fortawesome/free-solid-svg-icons';
 import FiltersModalComponent from '../components/FiltersModalComponent';
@@ -100,7 +99,7 @@ function HomeScreen({ navigation }) {
                     return {
                         id: business.id,
                         name: business.name,
-                        address: business.address,
+                        address: business.address.description,
                         rating: business.rating,
                         numRatings: business.review_number,
                         services: business.services_category != undefined && business.services_category[0] && Array.isArray(business.services_category[0].services) ? business.services_category[0].services.slice(0, 2).map(s => ({
