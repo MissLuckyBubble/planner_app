@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import StarRatingComponent from './StarRatingComponent';
 import { Colors } from '../assets/Colors';
 
-const CommentComponent = ({ date, customerAge, customerSex, customerName, rating, comment }) => {
+const CommentComponent = ({ date, customerAge, customerName, rating, comment }) => {
     return (
         <View style={styles.container}>
             <View style={styles.rowContainer}>
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
       fontWeight: 'bold',
       fontSize: 16,
       marginBottom: 5,
-      marginRight:'25%'
+      marginRight:'47%'
     },
     customerAge: {
       fontSize: 14,

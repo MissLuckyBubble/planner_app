@@ -3,11 +3,8 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import StarRatingComponent from './StarRatingComponent';
 import { Colors } from '../assets/Colors';
 import { IMG_URL } from '../../config';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faDeleteLeft, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 
-const BusinessListItem = ({ id, name, rating, numRatings, category, image, address, services }) => {
+const BusinessListItem = ({ name, rating, numRatings, category, image, address, services }) => {
   return (
     <View style={styles.container}>
       <Image source={{ uri: `${IMG_URL}/${image}` }}

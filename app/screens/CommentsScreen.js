@@ -5,19 +5,47 @@ import axios from 'axios';
 import { BASE_URL } from '../../config';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faHeart } from '@fortawesome/free-solid-svg-icons';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faBars, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 import { Colors } from '../assets/Colors';
 import StarRatingComponent from '../components/StarRatingComponent';
 import CommentComponent from '../components/CommentComponent';
 
 function CommentsScreen({ navigation, route }) {
-    const { appointmentId, businessId } = route.params;
+    const { userToken, user } = useContext(AuthContext);
 
-    const handleGoBack = () => {
-        navigation.navigate('BusinessDetails', { id: businessId });
+    const config = {
+        headers: {
+            Authorization: `Bearer ${userToken}`,
+            "Content-Type": "application/vnd.api+json",
+            Accept: "application/vnd.api+json",
+        }
     };
+
+    const [business, setBusiness] = useState([]);
+
+    const { appointmentId, businessId } = route.params ? route.params : { appointmentId: '', businessId: '' };
+
+    useEffect(() => {
+        const getBusiness = async () => {
+            if (user.role_id == 1) {
+                try {
+                    const response = await axios.get(`${BASE_URL}/getBusiness/${businessId}`, config);
+                    const result = response.data.data[0];
+                    const sortedComments = Object.values(result.comments).sort((a, b) => b.id - a.id);
+                    result.comments = sortedComments;
+                    setBusiness(result);
+                } catch (error) { }
+            }
+        };
+        getBusiness();
+    }, [businessId, appointmentId]);
+
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState('');
+    const [error, setError] = useState('');
+
+
     const handleLike = async () => {
         try {
             const response = await axios.post(`${BASE_URL}/customer/favorites/${businessId}`, '', config);
@@ -28,38 +56,9 @@ function CommentsScreen({ navigation, route }) {
                 ToastAndroid.show(`Успешно добавихте ${business.name} в любимите си места`, ToastAndroid.SHORT);
             }
         } catch (error) {
-        } finally {
+            console.error(error);
         }
     }
-    const { userToken } = useContext(AuthContext);
-    const config = {
-        headers: {
-            Authorization: `Bearer ${userToken}`,
-            "Content-Type": "application/vnd.api+json",
-            Accept: "application/vnd.api+json",
-        }
-    };
-    const [business, setBusiness] = useState([]);
-    useEffect(() => {
-        const getBusiness = async () => {
-            try {
-                const response = await axios.get(`${BASE_URL}/getBusiness/${businessId}`, config);
-                const result = response.data.data[0];
-                const sortedComments = Object.values(result.comments).sort((a, b) => b.id - a.id);
-                result.comments = sortedComments;
-                setBusiness(result);
-                console.log(result);
-            } catch (error) {
-            } finally {
-            }
-        };
-        getBusiness();
-    }, [businessId, appointmentId]);
-
-
-    const [rating, setRating] = useState(0);
-    const [comment, setComment] = useState('');
-    const [error, setError] = useState('');
 
     const handleRatingChange = (value) => {
         setRating(value);
@@ -87,23 +86,59 @@ function CommentsScreen({ navigation, route }) {
             console.error(error);
         }
     }
+
+    useEffect(() => {
+        const getBusiness = async () => {
+            if(user.role_id != 1)
+            try {
+                const response = await axios.get(`${BASE_URL}/business/profile`, config);
+                const result = response.data.data;
+                const sortedComments = Object.values(result.comments).sort((a, b) => b.id - a.id);
+                result.comments = sortedComments;
+                setBusiness(result);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        getBusiness();
+    }, []);
+
+
+    const handleGoBack = () => {
+        if (user.role_id == 1) {
+            navigation.navigate('BusinessDetails', { id: businessId });
+        } else {
+            navigation.goBack();
+        }
+    };
+    const openDrawer = () => {
+        navigation.openDrawer();
+    }
+
     return (
         <ScrollView style={{ flex: 1 }}>
             <View style={styles.topContainer}>
                 <TouchableOpacity onPress={handleGoBack}>
                     <FontAwesomeIcon icon={faArrowLeft} size={24} color={Colors.dark} />
                 </TouchableOpacity>
-                <Text style={styles.nameText}>{business.name}</Text>
-                <TouchableOpacity onPress={handleLike}>
-                    <FontAwesomeIcon icon={faHeart} size={24} color={Colors.error} />
-                </TouchableOpacity>
+                {user.role_id == 1 ?
+                    <Text style={styles.nameText}>{business.name}</Text> :
+                    <Text style={styles.nameText}>Вашите оценки</Text>}
+                {user.role_id == 1 ?
+                    <TouchableOpacity onPress={handleLike}>
+                        <FontAwesomeIcon icon={faHeart} size={24} color={Colors.error} />
+                    </TouchableOpacity> :
+                    <TouchableOpacity onPress={openDrawer}>
+                        <FontAwesomeIcon icon={faBars} size={24} color={Colors.dark} />
+                    </TouchableOpacity>
+                }
             </View>
             <View style={styles.rating}>
                 <Text style={styles.ratingText}>Общ рейтинг</Text>
                 <StarRatingComponent rating={business.rating} size={25} color={Colors.highlight}></StarRatingComponent>
                 <Text style={styles.ratingText}>(От {business.review_number} ревюта)</Text>
             </View>
-            {appointmentId ?
+            {user.role == 1 && appointmentId ?
                 <View style={styles.container}>
                     <Text style={styles.title}>Оставете вашата оценка </Text>
                     {error ? <Text style={{ color: Colors.error }}>{error}</Text> : ''}

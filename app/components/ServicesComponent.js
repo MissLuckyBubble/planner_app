@@ -1,10 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TouchableHighlight, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors } from '../assets/Colors';
-import { duration } from 'moment';
+import { AuthContext } from '../context/AuthContext';
+
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faPenToSquare, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { BASE_URL } from '../../config';
+import axios from 'axios';
+
 const MAX_DESCRIPTION_LENGTH = 80;
 
-const ServicesComponent = ({ services, clickedServices, style, disabled , onServiceRemoved  }) => {
+const ServicesComponent = ({ services, clickedServices, style, disabled, onServiceRemoved , onServiceDelete}) => {
+    const [servicesList, setServices] = useState(services);
+    
+    const { user } = useContext(AuthContext);
     const [isExpanded, setIsExpanded] = useState(false);
 
     const toggleExpand = () => {
@@ -31,11 +40,18 @@ const ServicesComponent = ({ services, clickedServices, style, disabled , onServ
         clickedServices(selectedServicesIds, serviceDuration, selectedServices);
     }, [selectedServicesIds, serviceDuration, selectedServices]);
 
-
+    const { userToken } = useContext(AuthContext);
+    const config = {
+        headers: {
+            Authorization: `Bearer ${userToken}`,
+            "Content-Type": "application/vnd.api+json",
+            Accept: "application/vnd.api+json",
+        }
+    }
 
     return (
         <View style={[styles.flex_container, style]}>
-            {services.map((service) => (
+            {servicesList.map((service) => (
                 <TouchableHighlight
                     disabled={disabled}
                     key={service.id}
@@ -44,37 +60,50 @@ const ServicesComponent = ({ services, clickedServices, style, disabled , onServ
                     style={[
                         styles.serviceButton,
                         selectedServicesIds.includes(service.id) && styles.selectedServiceButton,
-                    ]}>
-                    <View style={styles.serviceContainer}>
-                        <View style={styles.serviceInfo}>
-                            <Text style={styles.serviceTitle}>{service.title}</Text>
-                            <Text style={styles.servicePrice}>{service.price} лева</Text>
-                        </View>
-                        <View style={styles.serviceInfo}>
-                            {onServiceRemoved ? <TouchableHighlight onPress={() => onServiceRemoved(service)}>
-                                <Text style={styles.remove}>Премахни</Text>
-                            </TouchableHighlight> : ''}
-                            <Text style={styles.serviceDuration}>
-                                {service.duration_minutes} минути
-                            </Text>
-                        </View>
-                        <Text style={styles.serviceDescription}>
-                            {isExpanded
-                                ? service.description
-                                : `${service.description.slice(
-                                    0,
-                                    MAX_DESCRIPTION_LENGTH
-                                )}...`}
-                        </Text>
-                        {service.description.length > MAX_DESCRIPTION_LENGTH && (
-                            <TouchableOpacity
-                                style={styles.readMoreLink}
-                                onPress={toggleExpand}
-                            >
-                                <Text style={styles.readMoreText}>
-                                    {isExpanded ? 'Покажи по-малко' : 'Прочети повече'}
+                    ]}
+                >
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={styles.serviceContainer}>
+                            <View style={styles.serviceInfo}>
+                                <Text style={styles.serviceTitle}>{service.title}</Text>
+                                <Text style={styles.servicePrice}>{service.price} лева</Text>
+                            </View>
+                            <View style={styles.serviceInfo}>
+                                {onServiceRemoved ? <TouchableHighlight onPress={() => onServiceRemoved(service)}>
+                                    <Text style={styles.remove}>Премахни</Text>
+                                </TouchableHighlight> : ''}
+                                <Text style={styles.serviceDuration}>
+                                    {service.duration_minutes} минути
                                 </Text>
-                            </TouchableOpacity>
+                            </View>
+                            <Text style={styles.serviceDescription}>
+                                {isExpanded
+                                    ? service.description
+                                    : `${service.description.slice(
+                                        0,
+                                        MAX_DESCRIPTION_LENGTH
+                                    )}...`}
+                            </Text>
+                            {service.description.length > MAX_DESCRIPTION_LENGTH && (
+                                <TouchableOpacity
+                                    style={styles.readMoreLink}
+                                    onPress={toggleExpand}
+                                >
+                                    <Text style={styles.readMoreText}>
+                                        {isExpanded ? 'Покажи по-малко' : 'Прочети повече'}
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                        {user.role_id == 2 && (
+                            <View style={styles.iconContainer}>
+                                <TouchableOpacity style={{ marginBottom: 10 }} onPress={() => handleEditService(service)}>
+                                    <FontAwesomeIcon icon={faPenToSquare} size={16} color={Colors.dark} />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => onServiceDelete(service.id)}>
+                                    <FontAwesomeIcon icon={faTrashCan} size={16} color={Colors.error} />
+                                </TouchableOpacity>
+                            </View>
                         )}
                     </View>
                 </TouchableHighlight>
@@ -89,6 +118,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     serviceContainer: {
+        width: '87%',
         padding: 5,
         marginHorizontal: 10,
         marginVertical: 5,
