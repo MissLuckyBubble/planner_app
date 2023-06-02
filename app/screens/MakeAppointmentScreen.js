@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TouchableHighlight, ActivityIndicator } from 'react-native';
-import { Calendar } from 'react-native-calendars';
 import { AuthContext } from '../context/AuthContext';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -18,19 +17,6 @@ import ModalComponent from '../components/ModalComponent';
 
 function MakeAppointmentScreen({ navigation, route }) {
     const [isLoading, setIsLoading] = useState(false);
-    const businessName = route.params.businessName;
-    const businessId = route.params.businessId;
-    const uniqueId = route.params.uniqueId;
-    const [duration, setDuration] = useState(route.params.duration);
-    const [services, setServices] = useState(route.params.services);
-    const [servicesIds, setServicesIds] = useState(route.params.servicesIds);
-    useEffect(() => {
-        setDuration(route.params.duration);
-        setServices(route.params.services);
-        setServicesIds(route.params.servicesIds);
-    }, [uniqueId])
-    const [modalVisible, setModalVisible] = useState(false);
-
     const { userToken } = useContext(AuthContext);
     const config = {
         headers: {
@@ -44,71 +30,90 @@ function MakeAppointmentScreen({ navigation, route }) {
         navigation.goBack();
     };
 
-    const handleLike = async () => {
+    var businessName = route.params.businessName;
+    var businessId = route.params.businessId;
+    var uniqueId = route.params.uniqueId;
+
+    const [duration, setDuration] = useState(route.params.duration);
+    const [services, setServices] = useState(route.params.services);
+    const [servicesIds, setServicesIds] = useState(route.params.servicesIds);
+
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const [offDays, setOffDays] = useState([]);
+    const [firstWorkDate, setFWD] = useState('');
+    const [lastWorkDate, setLWD] = useState('');
+
+    const [selectedDate, setSelectedDate] = useState('');
+    const [timeSlots, setTimeSlots] = useState([]);
+
+    const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
+    const [selectedTimeSlotsRange, setSelectedTimeSlotsRange] = useState([]);
+
+    const [erros, setError] = useState('');
+
+    useEffect(() => {
+        handleTimeSlotClick(selectedTimeSlot);
+    }, [duration])
+
+    useEffect(() => {
+        setDuration(route.params.duration);
+        setServices(route.params.services);
+        setServicesIds(route.params.servicesIds);
+        getScheduele();
+        setModalVisible(false);
+    }, [uniqueId, route.params, businessId])
+
+    const handleLike = useCallback(async () => {
         try {
             const response = await axios.post(`${BASE_URL}/customer/favorites/${businessId}`, '', config);
             const result = response.data;
-            if (result == 1) {
+            if (result === 1) {
                 ToastAndroid.show(`Успешно премахнахте ${businessName} от любимите си места`, ToastAndroid.SHORT);
             } else {
                 ToastAndroid.show(`Успешно добавихте ${businessName} в любимите си места`, ToastAndroid.SHORT);
             }
         } catch (error) {
-        } finally {
+            console.log(error);
         }
-    }
-    const [offDays, setOffDays] = useState([]);
-    const [firstWorkDate, setFWD] = useState();
-    const [lastWorkDate, setLWD] = useState();
+    }, [businessId, businessName, config]);
 
-    useEffect(() => {
-        const getScheduele = async () => {
-            try {
-                const response = await axios.get(`${BASE_URL}/getTwoWeekSchedule/${businessId}`, config);
-                const result = response.data;
-
-                const updatedOffDays = [];
-                const updatedWorkDays = [];
-
-                result.forEach((day) => {
-                    if (day.is_off) {
-                        updatedOffDays.push(day.date);
-                    } else {
-                        updatedWorkDays.push(day);
-                    }
-                });
-                setOffDays(updatedOffDays);
-                setFWD(updatedWorkDays[0].date);
-                setLWD(updatedWorkDays[updatedWorkDays.length - 1].date);
-
-            } catch (error) {
-                console.log(error);
-            } finally {
-            }
-        };
-        getScheduele();
-    }, [businessId]);
-
-    useEffect(()=>{
-        handleTimeSlotClick(selectedTimeSlot);
-    },[duration])
-
-    const [selectedDate, setselectedDate] = useState(null);
-    const [timeSlots, setTimeSlots] = useState([]);
-    const onDateChange = async (date, Type) => {
-        const formattedDate = new Date(date).toLocaleDateString();
-        setselectedDate(formattedDate);
+    const getScheduele = useCallback(async () => {
         try {
-            const response = await axios.get(`${BASE_URL}/getBusinessHoursForDay/${businessId}?date=${formattedDate}`, config);
+            const response = await axios.get(`${BASE_URL}/getTwoWeekSchedule/${businessId}`, config);
             const result = response.data;
-            setTimeSlots(result)
+
+            const updatedOffDays = [];
+            const updatedWorkDays = [];
+
+            result.forEach((day) => {
+                if (day.is_off) {
+                    updatedOffDays.push(day.date);
+                } else {
+                    updatedWorkDays.push(day);
+                }
+            });
+            setOffDays(updatedOffDays);
+            setFWD(updatedWorkDays[0].date);
+            setLWD(updatedWorkDays[updatedWorkDays.length - 1].date);
         } catch (error) {
             console.log(error);
         }
+    }, [businessId, config]);
 
-    };
-    const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
-    const [selectedTimeSlotsRange, setSelectedTimeSlotsRange] = useState([]);
+    const onDateChange = useCallback(async (date) => {
+        const formattedDate = new Date(date).toLocaleDateString();
+        setSelectedDate(formattedDate);
+        try {
+            const response = await axios.get(`${BASE_URL}/getBusinessHoursForDay/${businessId}?date=${formattedDate}`, config);
+            const result = response.data;
+            setTimeSlots(result);
+        } catch (error) {
+            console.log(error);
+        }
+    }, [businessId, config]);
+
+
 
     const handleTimeSlotClick = (timeSlot) => {
         const index = timeSlots.indexOf(timeSlot);
@@ -128,13 +133,11 @@ function MakeAppointmentScreen({ navigation, route }) {
         setServices(services.filter((s) => s !== service));
     };
 
-    const [erros, setError] = useState('');
-    const onMakeAppointment = async () => {
+    const onMakeAppointment = useCallback(async () => {
         setIsLoading(true);
         try {
             const dateParts = selectedDate.split('/');
-            const formattedDate
-                = `${dateParts[2]}/${dateParts[0].padStart(2, '0')}/${dateParts[1].padStart(2, '0')}`;
+            const formattedDate = `${dateParts[2]}/${dateParts[0].padStart(2, '0')}/${dateParts[1].padStart(2, '0')}`;
             const response = await axios.post(
                 `${BASE_URL}/customer/appointments/create/${businessId}`,
                 {
@@ -142,8 +145,19 @@ function MakeAppointmentScreen({ navigation, route }) {
                     start_time: selectedTimeSlot,
                     services: servicesIds.join(', ')
                 },
-                config);
+                config
+            );
             setModalVisible(true);
+            setDuration(0);
+            setServices([]);
+            setServicesIds([]);
+            setSelectedDate('');
+            setTimeSlots([]);
+            setSelectedTimeSlot('');
+            setSelectedTimeSlotsRange([]);
+            setError('');
+            setFWD('');
+            setLWD('');
         } catch (error) {
             if (error.response) {
                 console.log(error.response.data);
@@ -154,7 +168,8 @@ function MakeAppointmentScreen({ navigation, route }) {
         } finally {
             setIsLoading(false);
         }
-    }
+    }, [selectedDate, selectedTimeSlot, servicesIds, businessId, config]);
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.topContainer}>
@@ -178,7 +193,7 @@ function MakeAppointmentScreen({ navigation, route }) {
                         [
                             'Пон',
                             'Втор',
-                            'Срядя',
+                            'Сряда',
                             'Чет',
                             'Пет',
                             'Съб',
@@ -207,7 +222,7 @@ function MakeAppointmentScreen({ navigation, route }) {
                     onDateChange={onDateChange}
                 />
                 <View style={styles.TimeSlotContainer}>
-                    <Text style={styles.TimeSlotTitle}>{selectedDate == null ? 'Моля изберете дата от календара' : `Изберете час за избрана дата(${selectedDate})`}</Text>
+                    <Text style={styles.TimeSlotTitle}>{selectedDate == '' ? 'Моля изберете дата от календара' : `Изберете час за избрана дата(${selectedDate})`}</Text>
                     {timeSlots.map((timeSlot, index) => (
                         <TouchableOpacity
                             key={index}
@@ -242,7 +257,7 @@ function MakeAppointmentScreen({ navigation, route }) {
                         style={{ padding: 10 }}
                         services={services} />
                     <TouchableHighlight
-                        disabled={selectedTimeSlot == null || duration <= 0 || services.length <= 0 || isLoading}
+                        disabled={selectedTimeSlot == '' || duration <= 0 || services.length <= 0 || isLoading}
                         onPress={onMakeAppointment}
                         style={[styles.button, isLoading && styles.buttonLoading]}>
                         {isLoading ? (
