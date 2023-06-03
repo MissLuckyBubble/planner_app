@@ -132,6 +132,8 @@ function BusinessHomeScreen({ navigation }) {
                 await axios.post(`${BASE_URL}/business/picture/upload`, formData, config);
             } catch (error) {
                 console.error(error);
+            }finally{
+                getBusiness();
             }
         }
     };
@@ -156,7 +158,7 @@ function BusinessHomeScreen({ navigation }) {
             getBusiness();
         }
 
-        onCategoryChange(name);
+        onCategoryChange('');
         setAddingCategory(bool);
     }
 
