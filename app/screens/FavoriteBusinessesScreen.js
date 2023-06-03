@@ -94,7 +94,7 @@ const FavoriteBusinessesScreen = ({ navigation }) => {
             <BusinessListItem
               id={item.id}
               name={item.name}
-              address={item.address}
+              address={item.address.description}
               rating={item.rating}
               services={item.services}
               numRatings={item.numRatings}
