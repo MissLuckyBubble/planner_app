@@ -10,7 +10,8 @@ function RegisterBusinessScreen({ navigation }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const register = () => {
         {
-            const url = `${BASE_URL}/businessRegister`;
+            console.log(email);
+            const url = `${BASE_URL}/business/register`;
             setIsSubmitting(true);
             if (phoneNumber == "" || phoneNumber == null ||
                 email == "" || email == null ||
@@ -124,6 +125,7 @@ function RegisterBusinessScreen({ navigation }) {
                             onChangeText={onChangeNumber}
                             value={phoneNumber}
                             placeholder="Телефонен номер"
+                            maxLength={9}
                             keyboardType="numeric"
                         />
                     </View>
@@ -151,6 +153,7 @@ function RegisterBusinessScreen({ navigation }) {
                             style={styles.input}
                             onChangeText={onChangeEik}
                             value={eik}
+                            maxLength={13}
                             placeholder="ЕИК/ПИК"
                         />
                     </View>

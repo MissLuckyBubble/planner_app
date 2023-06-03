@@ -5,56 +5,67 @@ import { BASE_URL } from '../../config';
 import { ScrollView } from 'react-native-gesture-handler';
 import ModalComponent from '../components/ModalComponent';
 import axios from 'axios';
+import { TextInputMask } from 'react-native-masked-text';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faCakeCandles } from '@fortawesome/free-solid-svg-icons';
 
 function RegisterScreen({ navigation }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const register = () => {
         {
+            var date = new Date(birthDate);
             const url = `${BASE_URL}/register`;
             setIsSubmitting(true);
             if (phoneNumber == "" || phoneNumber == null ||
                 email == "" || email == null ||
                 password == "" || password == null ||
-                password_confirmation == "" || password_confirmation == null) {
+                password_confirmation == "" || password_confirmation == null ||
+                birthDate == "" || birthDate == null) {
                 setErrors("Всички полета са задължителни!")
                 setIsSubmitting(false);
-            }else if (password.toString().length < 8) {
+            } else if (password.toString().length < 8) {
                 setErrors("Паролата трябва да съдържа поне 8 символа");
                 setIsSubmitting(false);
             }
             else if (password_confirmation != password) {
                 setErrors("Паролите не съвпадат");
                 setIsSubmitting(false);
+            } else if (!date instanceof Date) {
+                setErrors("Невалидна рожденна дата.");
+                setIsSubmitting(false);
+            } else if (date.getFullYear() >= new Date().getFullYear() - 13) {
+                setErrors("Трябва да сте на поне 13 години.");
+                setIsSubmitting(false);
             }
             else
-                    axios.post(
-                        url,
-                        {
-                            phoneNumber, email, password, password_confirmation
-                        }, {
-                        headers: {
-                            "Content-Type": "application/vnd.api+json",
-                            Accept: "application/vnd.api+json",
-                        },
+                axios.post(
+                    url,
+                    {
+                        phoneNumber, email, password, password_confirmation, birth_day:birthDate
+                    }, {
+                    headers: {
+                        "Content-Type": "application/vnd.api+json",
+                        Accept: "application/vnd.api+json",
+                    },
+                }
+                ).then((response) => {
+                    if (!response.status) {
+                        setErrors("Невалидни данни");
+                    } else {
+                        setModalVisible(true);
                     }
-                    ).then((response) => {
-                        if (!response.status) {
-                            setErrors("Невалидни данни");
-                        } else {
-                            setModalVisible(true);
-                        }
+                }
+                ).catch((error) => {
+                    setIsSubmitting(false);
+                    console.log(error.response.data);
+                    if (error.response.data.errors.email) {
+                        setErrors("Невалиден или съществуващ имейл.");
                     }
-                    ).catch((error) => {
-                        setIsSubmitting(false);
-                        console.log(error.response.data);
-                        if (error.response.data.errors.email) {
-                            setErrors("Невалиден или съществуващ имейл.");
-                        } 
-                        else if (error.response.data.errors.phoneNumber) {
-                            setErrors("Невалиден или съществуващ телефонен номер.");
-                        }
-                        else setErrors("Грешка при регистрацията, моля опитайте отново!");
-                    });
+                    else if (error.response.data.errors.phoneNumber) {
+                        setErrors("Невалиден или съществуващ телефонен номер.");
+                    }
+                    else setErrors("Грешка при регистрацията, моля опитайте отново!");
+                });
         }
     }
     const [errors, setErrors] = useState(null);
@@ -62,6 +73,7 @@ function RegisterScreen({ navigation }) {
     const [email, onChangeEmail] = useState(null);
     const [password, onChangePass] = useState(null);
     const [password_confirmation, onChangePassConf] = useState(null);
+    const [birthDate, setBirthDate] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const login = () => {
         navigation.navigate("Login")
@@ -110,6 +122,7 @@ function RegisterScreen({ navigation }) {
                         <Text style={styles.inputIcon}>+359</Text>
                         <TextInput
                             style={styles.input}
+                            maxLength={9}
                             onChangeText={onChangeNumber}
                             value={phoneNumber}
                             placeholder="Телефонен номер"
@@ -151,12 +164,22 @@ function RegisterScreen({ navigation }) {
                             <Image style={[styles.inputIcon, { width: 20, height: 20, margin: 5 }]} source={state.icon}></Image>
                         </TouchableOpacity>
                     </View>
+                    <View style={styles.inputContainer}>
+                        <FontAwesomeIcon icon={faCakeCandles} size={24} color={Colors.dark} />
+                        <TextInputMask
+                            type={'datetime'}
+                            options={{ format: 'YYYY-MM-DD' }}
+                            placeholder={'Рожденна дата'}
+                            value={birthDate}
+                            onChangeText={setBirthDate}
+                            style={[styles.input, { width: 283 }]} />
+                    </View>
                     {isSubmitting == false && <TouchableHighlight style={styles.loginButton}
                         onPress={register}>
                         <Text style={styles.btntext}>Регистрация</Text>
                     </TouchableHighlight>}
-                    { isSubmitting ==true && <TouchableHighlight style={styles.loginButton}>
-                    <ActivityIndicator size='large' color={Colors.dark}></ActivityIndicator>      
+                    {isSubmitting == true && <TouchableHighlight style={styles.loginButton}>
+                        <ActivityIndicator size='large' color={Colors.dark}></ActivityIndicator>
                     </TouchableHighlight>}
                     <View style={{ alignItems: 'flex-end' }}>
                         <TouchableOpacity onPress={login}>
@@ -179,8 +202,8 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     icon: {
-        width: 100,
-        height: 100,
+        width: 80,
+        height: 80,
         marginTop: 30,
         marginStart: 5,
         alignSelf: 'center'
@@ -189,14 +212,14 @@ const styles = StyleSheet.create({
         color: Colors.error,
     },
     title: {
-        fontSize: 28,
+        fontSize: 26,
         fontWeight: 'bold',
         color: Colors.dark
     },
     main: {
-        margin: 25,
+        margin: 20,
         borderRadius: 20,
-        marginTop: 15,
+        marginTop: 5,
         marginBottom: 10,
         alignItems: "center",
         alignSelf: 'center'
