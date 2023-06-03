@@ -11,6 +11,7 @@ import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Colors } from '../assets/Colors';
 import StarRatingComponent from '../components/StarRatingComponent';
 import BusinessCategoriesComponent from '../components/BusinessCategoriesComponent';
+import MapComponent from '../components/Addresses/MapComponent';
 
 
 function BusinessDetailsScreen({ navigation, route }) {
@@ -33,8 +34,9 @@ function BusinessDetailsScreen({ navigation, route }) {
             } else {
                 ToastAndroid.show(`Успешно добавихте ${business.name} в любимите си места`, ToastAndroid.SHORT);
             }
+            console.log(business.address.latitude, business.address.longitude);
         } catch (error) {
-        } finally {
+            console.log(error);
         }
     }
     const { userToken } = useContext(AuthContext);
@@ -53,7 +55,7 @@ function BusinessDetailsScreen({ navigation, route }) {
                 const result = response.data.data[0];
                 setBusines(result);
             } catch (error) {
-            } finally {
+                console.error(error);
             }
         };
         getBusiness();
@@ -62,23 +64,23 @@ function BusinessDetailsScreen({ navigation, route }) {
     const [clickedServices, setClickedServices] = useState([]);
     const [duration, setDuration] = useState();
     const [services, setServices] = useState([]);
-    
+
     const handleClickedServices = (selectedServicesIds, duration, selectedServices) => {
-      setClickedServices(selectedServicesIds);
-      setDuration(duration);
-      setServices(selectedServices);
+        setClickedServices(selectedServicesIds);
+        setDuration(duration);
+        setServices(selectedServices);
     };
-    
-    const onMakeAppointment = (businessId,name,services,duration,servicesIds) => {
+
+    const onMakeAppointment = (businessId, name, services, duration, servicesIds) => {
         navigation.navigate('MakeAppointmentScreen', {
-          businessId: businessId,
-          businessName: name,
-          services: services,
-          servicesIds: servicesIds,
-          duration: duration,
-          uniqueId: Date.now().toString()
+            businessId: businessId,
+            businessName: name,
+            services: services,
+            servicesIds: servicesIds,
+            duration: duration,
+            uniqueId: Date.now().toString()
         });
-      };
+    };
 
     return (
         <ScrollView style={{ flex: 1 }}>
@@ -102,23 +104,42 @@ function BusinessDetailsScreen({ navigation, route }) {
                 <Text style={styles.descriptiontext}>{business.description} </Text>
             </View>
             {
-                business.services_category ? business.services_category.map(category=>
+                business.services_category ? business.services_category.map(category =>
                     <BusinessCategoriesComponent key={category.id}
                         title={category.title}
                         services={category.services}
                         handleClickedServices={handleClickedServices}
                     />
                 )
-                 : ''
+                    : ''
             }
 
             <View style={styles.bottomContainer}>
                 <Text style={styles.servicesLengthText}>Избрани са {clickedServices.length} услуги</Text>
                 <TouchableHighlight
-                disabled={clickedServices.length<=0}
-                onPress={()=>onMakeAppointment(business.id,business.name,services,duration,clickedServices)} style={styles.button}>
-                    <Text style={styles.buttonText}>{clickedServices.length<=0 ? 'Изберете услуги' : 'Запази си час'}</Text>
+                    disabled={clickedServices.length <= 0}
+                    onPress={() => onMakeAppointment(business.id, business.name, services, duration, clickedServices)} style={styles.button}>
+                    <Text style={styles.buttonText}>{clickedServices.length <= 0 ? 'Изберете услуги' : 'Запази си час'}</Text>
                 </TouchableHighlight>
+            </View>
+
+            <View style={styles.addressContainer}>
+                {business.address && (
+                    <Text style={styles.addressText}>Адрес: {business.address.description}</Text>
+                )}
+                {business.address &&
+                    business.address.latitude != null &&
+                    business.address.latitude != '' && (
+                        <View style={styles.mapContainer}>
+                            <MapComponent
+                                latitude={parseFloat(business.address.latitude)}
+                                longitude={parseFloat(business.address.longitude)}
+                                height={200}
+                                businessName={business.name}
+                                businessCategories={business.category}
+                            ></MapComponent>
+                        </View>
+                    )}
             </View>
         </ScrollView>
     );
@@ -163,14 +184,14 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         color: Colors.dark
     },
-    descriptionConteiner:{
-        margin:5,
-        paddingHorizontal:10
+    descriptionConteiner: {
+        margin: 5,
+        paddingHorizontal: 10
     },
     button: {
         width: '100%',
         height: 50,
-        backgroundColor: Colors.dark, 
+        backgroundColor: Colors.dark,
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
@@ -181,4 +202,28 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
+    addressContainer: {
+        marginVertical: 10,
+        padding: 20,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+      },
+      addressText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 10,
+      },
+      mapContainer: {
+        height: 200,
+        borderRadius: 10,
+        overflow: 'hidden',
+      },
 })
