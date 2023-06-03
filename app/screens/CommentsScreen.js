@@ -138,7 +138,7 @@ function CommentsScreen({ navigation, route }) {
                 <StarRatingComponent rating={business.rating} size={25} color={Colors.highlight}></StarRatingComponent>
                 <Text style={styles.ratingText}>(От {business.review_number} ревюта)</Text>
             </View>
-            {user.role == 1 && appointmentId ?
+            {user.role_id == 1 && appointmentId ?
                 <View style={styles.container}>
                     <Text style={styles.title}>Оставете вашата оценка </Text>
                     {error ? <Text style={{ color: Colors.error }}>{error}</Text> : ''}
