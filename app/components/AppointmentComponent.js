@@ -1,15 +1,13 @@
-import React, { useContext, useState } from 'react';
-import { View, Text, StyleSheet, Linking } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Linking, TouchableOpacity } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import { Colors } from '../assets/Colors';
 import ServicesComponent from './ServicesComponent';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faLocationDot, faCheck, faPhone, faMoneyBill1Wave, faClock, faCalendarCheck, faUser, faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import Tooltip from 'react-native-tooltip';
+import { faLocationDot, faCheck, faPhone, faMoneyBill1Wave, faClock, faCalendarCheck, faUser, faAngleUp, faAngleDown, faPersonCircleQuestion, faPeopleRoof, faUserCheck } from '@fortawesome/free-solid-svg-icons';
 
-const AppointmentComponent = ({ appointment, cancelAppointment, rateAppiontment }) => {
+
+const AppointmentComponent = ({ appointment, cancelAppointment, customerCancelGroupAppointment, rateAppiontment }) => {
     const { user } = useContext(AuthContext);
     const handlePhoneCall = () => {
         const phoneNumber = 0 + appointment.business.phoneNumber;
@@ -37,17 +35,13 @@ const AppointmentComponent = ({ appointment, cancelAppointment, rateAppiontment 
     };
 
     const handleBusinessPress = () => {
-        
+
     }
     const [showServices, setShowServices] = useState(false);
 
+
     const handleToggleServices = () => {
         setShowServices(!showServices);
-    };
-
-    const handleInfoPress = () => {
-        // Handle the press event for the info icon
-        // Show additional information or perform any other action
     };
 
     return (
@@ -72,20 +66,26 @@ const AppointmentComponent = ({ appointment, cancelAppointment, rateAppiontment 
                 <FontAwesomeIcon icon={faMoneyBill1Wave} style={styles.icon} size={16} color={Colors.light} />
                 <Text style={styles.text}>Цена: {appointment.total_price}</Text>
             </View>
-            <TouchableOpacity style={styles.servicesTitle} onPress={handleToggleServices}>
-                <Text style={styles.text}>Услуги</Text>
-                {showServices ?
-                    <FontAwesomeIcon icon={faAngleUp} size={15} color={Colors.dark} /> :
-                    <FontAwesomeIcon icon={faAngleDown} size={15} color={Colors.dark} />
-                }
-            </TouchableOpacity>
-            {showServices && (
-                <ServicesComponent
-                    disabled={true}
-                    services={appointment.services.data}
-                    clickedServices={() => { }}
-                />
-            )}
+            {appointment.max_capacity ?
+                <View>
+                    <Text style={[styles.servicesTitle, styles.text, { backgroundColor: Colors.highlight, textAlign: 'center' }]}>{appointment.title}</Text>
+                    <Text style={styles.text}>Описание: {appointment.description}</Text>
+                </View> :
+                <View>
+                    <TouchableOpacity style={styles.servicesTitle} onPress={handleToggleServices}>
+                        <Text style={styles.text}>Услуги</Text>
+                        {showServices ?
+                            <FontAwesomeIcon icon={faAngleUp} size={15} color={Colors.dark} /> :
+                            <FontAwesomeIcon icon={faAngleDown} size={15} color={Colors.dark} />
+                        }
+                    </TouchableOpacity>
+                    {showServices && (
+                        <ServicesComponent
+                            disabled={true}
+                            services={appointment.services.data}
+                            clickedServices={() => { }}
+                        />
+                    )}</View>}
             <View style={styles.infoContainer}>
                 {user.role_id === 1 ? (
                     <View>
@@ -114,22 +114,38 @@ const AppointmentComponent = ({ appointment, cancelAppointment, rateAppiontment 
                 ) : (
                     <View>
                         <Text style={[styles.text, styles.titleText]}>
-                            Информация за клиента:
+                            {!appointment.max_capacity ? 'Информация за клиента' : 'Информация за клиентите'}
                         </Text>
-                        <Text style={styles.text}>
-                            <FontAwesomeIcon icon={faUser} style={styles.icon} size={16} />
-                            Име: {appointment.customer.data.name}
-                        </Text>
-                        <Text style={styles.text}>
-                            <FontAwesomeIcon icon={faPhone} style={styles.icon} size={16} />
-                            Тел: 0{appointment.customer.phoneNumber}
-                        </Text>
+                        {appointment.max_capacity ?
+                            <Text style={[styles.text,]}>
+                                <FontAwesomeIcon icon={faPeopleRoof} style={styles.icon} size={18} />
+                                Максимален Капацитет: {appointment.max_capacity}
+                            </Text> :
+                            <Text style={styles.text}>
+                                <FontAwesomeIcon icon={faUser} style={styles.icon} size={16} />
+                                Име: {appointment.customer.name}
+                            </Text>}
+                        {appointment.max_capacity ?
+                            <Text style={styles.text}>
+                                <FontAwesomeIcon icon={faUserCheck} style={styles.icon} size={18} />
+                                Брой записали се:{appointment.count_ppl}
+                            </Text> :
+                            <TouchableOpacity onPress={handlePhoneCall}>
+                                <Text style={styles.text}>
+                                    <FontAwesomeIcon icon={faPhone} style={styles.icon} size={16} />
+                                    Тел: 0{appointment.customer.phoneNumber}
+                                </Text>
+                            </TouchableOpacity>}
                     </View>
                 )}
             </View>
-            {cancelAppointment ? <TouchableOpacity style={styles.cancel} onPress={cancelAppointment}>
-                <Text style={styles.cancel_text} >Откажи</Text>
-            </TouchableOpacity> : ''}
+            {customerCancelGroupAppointment && appointment.max_capacity ?
+                <TouchableOpacity style={styles.cancel} onPress={customerCancelGroupAppointment}>
+                    <Text style={styles.cancel_text} >Откажи своето място</Text>
+                </TouchableOpacity> :
+                cancelAppointment && <TouchableOpacity style={styles.cancel} onPress={cancelAppointment}>
+                    <Text style={styles.cancel_text} >Откажи</Text>
+                </TouchableOpacity>}
             {rateAppiontment && appointment.rated === false && appointment.status == 'Приключен' ? <TouchableOpacity style={styles.cancel} onPress={rateAppiontment}>
                 <Text style={styles.cancel_text} >Остави оценка</Text>
             </TouchableOpacity> : ''}
