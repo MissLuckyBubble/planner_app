@@ -10,9 +10,9 @@ import axios from 'axios';
 
 const MAX_DESCRIPTION_LENGTH = 80;
 
-const ServicesComponent = ({ services, clickedServices, style, disabled, onServiceRemoved , onServiceDelete}) => {
+const ServicesComponent = ({ services, clickedServices, style, disabled, onServiceRemoved, onServiceDelete }) => {
     const [servicesList, setServices] = useState(services);
-    
+
     const { user } = useContext(AuthContext);
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -23,16 +23,31 @@ const ServicesComponent = ({ services, clickedServices, style, disabled, onServi
     const [selectedServices, setSelectedServices] = useState([]);
     const [selectedServicesIds, setSelectedServicesIds] = useState([]);
     const [serviceDuration, setServiceDuration] = useState(0);
-
     const handleServiceClick = (serviceId, duration, service) => {
-        if (selectedServicesIds.includes(serviceId)) {
-            setSelectedServices(selectedServices.filter((s) => s != service));
-            setServiceDuration(serviceDuration - duration);
-            setSelectedServicesIds(selectedServicesIds.filter((id) => id !== serviceId));
+        if (service.max_capacity) {
+            if (selectedServicesIds.includes(serviceId)) {
+                setSelectedServices([]);
+                setServiceDuration(0);
+                setSelectedServicesIds([]);
+            } else {
+                setSelectedServices([service]);
+                setServiceDuration(duration);
+                setSelectedServicesIds([serviceId]);
+            }
         } else {
-            setSelectedServices([...selectedServices, service]);
-            setServiceDuration(serviceDuration + duration);
-            setSelectedServicesIds([...selectedServicesIds, serviceId]);
+            if ((selectedServices.length == 1 && selectedServices[0].max_capacity)) {
+                setSelectedServices([service]);
+                setServiceDuration(duration);
+                setSelectedServicesIds([serviceId]);
+            } else if (selectedServicesIds.includes(serviceId)) {
+                setSelectedServices(selectedServices.filter((s) => s != service));
+                setServiceDuration(serviceDuration - duration);
+                setSelectedServicesIds(selectedServicesIds.filter((id) => id !== serviceId));
+            } else {
+                setSelectedServices([...selectedServices, service]);
+                setServiceDuration(serviceDuration + duration);
+                setSelectedServicesIds([...selectedServicesIds, serviceId]);
+            }
         }
     };
 
@@ -56,7 +71,7 @@ const ServicesComponent = ({ services, clickedServices, style, disabled, onServi
                     disabled={disabled}
                     key={service.id}
                     activeOpacity={0.8}
-                    onPress={() => handleServiceClick(service.id, service.duration_minutes, service)}
+                    onPress={() => handleServiceClick(service.id, service.duration, service)}
                     style={[
                         styles.serviceButton,
                         selectedServicesIds.includes(service.id) && styles.selectedServiceButton,
@@ -64,6 +79,10 @@ const ServicesComponent = ({ services, clickedServices, style, disabled, onServi
                 >
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View style={styles.serviceContainer}>
+                            {service.max_capacity &&
+                                <View style={styles.groupTag}>
+                                    <Text >Групово занимание</Text>
+                                    <Text >Дата:{service.date}   Час:{service.start_time}</Text></View>}
                             <View style={styles.serviceInfo}>
                                 <Text style={styles.serviceTitle}>{service.title}</Text>
                                 <Text style={styles.servicePrice}>{service.price} лева</Text>
@@ -73,7 +92,7 @@ const ServicesComponent = ({ services, clickedServices, style, disabled, onServi
                                     <Text style={styles.remove}>Премахни</Text>
                                 </TouchableHighlight> : ''}
                                 <Text style={styles.serviceDuration}>
-                                    {service.duration_minutes} минути
+                                    {service.duration} минути
                                 </Text>
                             </View>
                             <Text style={styles.serviceDescription}>
@@ -95,7 +114,7 @@ const ServicesComponent = ({ services, clickedServices, style, disabled, onServi
                                 </TouchableOpacity>
                             )}
                         </View>
-                        {user.role_id == 2 && (
+                        {user.role_id == 2 && onServiceDelete && (
                             <View style={styles.iconContainer}>
                                 <TouchableOpacity style={{ marginBottom: 10 }} onPress={() => handleEditService(service)}>
                                     <FontAwesomeIcon icon={faPenToSquare} size={16} color={Colors.dark} />
@@ -186,5 +205,12 @@ const styles = StyleSheet.create({
     readMoreText: {
         color: Colors.primary,
         fontWeight: 'bold',
+    },
+    groupTag: {
+        backgroundColor: Colors.highlight,
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        alignItems: 'center',
+        marginBottom:5
     },
 });
