@@ -142,6 +142,7 @@ const ResetPasswordScreen = ({ navigation }) => {
             <ModalComponent
                 navigation={navigation}
                 nav='Login'
+                setModalVisible={setModalVisible}
                 modalVisible={modalVisible}
                 title={'Успешно възстановена парола!'}
                 text={'Вече може да влезнете с новата си парола.'}

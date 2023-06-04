@@ -42,10 +42,11 @@ const HistoryScreen = ({ navigation }) => {
                 config
             );
             const result = response.data.data;
-            if (result) {
-                setAppointments(result);
-            } else {
-                setAppointments([]);
+            console.log(result);
+            if (response.data.data) {
+                console.log(response.data.data);
+                const appointmentsArray = Object.values(response.data.data);
+                setAppointments(appointmentsArray);
             }
         } catch (error) {
             console.error(error);

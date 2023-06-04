@@ -272,6 +272,7 @@ function MakeAppointmentScreen({ navigation, route }) {
                 navigation={navigation}
                 nav='Home'
                 modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
                 title={'Запазихте си час успешно!'}
                 text={'Ще получите имейл с потвърждение. Детайли можете да видите и в менюто моите запазени часове.'}
                 btntext={'Продължи'}>

@@ -82,6 +82,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
                 navigation={navigation}
                 nav='ResetPassword'
                 modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
                 title={'Успешно изпратена заявка!'}
                 text={'Ако имейлът e валиден ще получите код за възстановяване.'}
                 btntext={'Продължи'}>

@@ -115,6 +115,7 @@ function RegisterScreen({ navigation }) {
                         navigation={navigation}
                         nav='Login'
                         modalVisible={modalVisible}
+                        setModalVisible={setModalVisible}
                         title={'Регистрирахне се успешно!'}
                         btntext={'Вход'}>
                     </ModalComponent>

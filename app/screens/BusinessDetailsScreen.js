@@ -12,7 +12,7 @@ import { Colors } from '../assets/Colors';
 import StarRatingComponent from '../components/StarRatingComponent';
 import BusinessCategoriesComponent from '../components/BusinessCategoriesComponent';
 import MapComponent from '../components/Addresses/MapComponent';
-
+import ModalComponent from '../components/ModalComponent';
 
 function BusinessDetailsScreen({ navigation, route }) {
     const { id } = route.params;
@@ -34,7 +34,6 @@ function BusinessDetailsScreen({ navigation, route }) {
             } else {
                 ToastAndroid.show(`Успешно добавихте ${business.name} в любимите си места`, ToastAndroid.SHORT);
             }
-            console.log(business.address.latitude, business.address.longitude);
         } catch (error) {
             console.log(error);
         }
@@ -64,11 +63,16 @@ function BusinessDetailsScreen({ navigation, route }) {
     const [clickedServices, setClickedServices] = useState([]);
     const [duration, setDuration] = useState();
     const [services, setServices] = useState([]);
+    const [is_group, setIsGroup] = useState(false);
 
     const handleClickedServices = (selectedServicesIds, duration, selectedServices) => {
         setClickedServices(selectedServicesIds);
         setDuration(duration);
         setServices(selectedServices);
+        setError('');
+        if (selectedServices.length > 0 && selectedServices[0].max_capacity) {
+            setIsGroup(true)
+        } else setIsGroup(false);
     };
 
     const onMakeAppointment = (businessId, name, services, duration, servicesIds) => {
@@ -80,6 +84,29 @@ function BusinessDetailsScreen({ navigation, route }) {
             duration: duration,
             uniqueId: Date.now().toString()
         });
+    };
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [error, setError] = useState('');
+    const signUpForGroupAppointment = async () => {
+        try {
+            console.log(`${BASE_URL}/customer/group_appointment/signup/${clickedServices}`);
+            const response = await axios.patch(`${BASE_URL}/customer/group_appointment/signup/${clickedServices}`, '', config);
+            const result = response.data;
+            console.log(result)
+            setError('');
+            setModalVisible(true);
+        } catch (error) {
+            console.log( error.response);
+            if (error.response && error.response.data && error.response.data.message) {
+                const errorMessage = error.response.data.message;
+                if (errorMessage.includes('капацитет')) {
+                    setError('Съжаляваме, няма свободни места.');
+                } else if(errorMessage.includes('Вече сте се записали')){
+                    setError('Съжаляваме, можете да се запишете само веднъж.');
+                } else setError('Съжаляваме, възникна грешка. Моля опитайте отново.');
+            }
+        }
     };
 
     return (
@@ -115,13 +142,30 @@ function BusinessDetailsScreen({ navigation, route }) {
             }
 
             <View style={styles.bottomContainer}>
-                <Text style={styles.servicesLengthText}>Избрани са {clickedServices.length} услуги</Text>
-                <TouchableHighlight
+            {error && <Text style={{color:Colors.error, fontSize:16}}>{error}</Text>}
+                <Text style={styles.servicesLengthText}>{clickedServices.length == 1 ? 'Избрана е 1 услуга' : 'Избрани са ' + clickedServices.length + ' услуги'}</Text>
+                {!is_group ? <TouchableHighlight
                     disabled={clickedServices.length <= 0}
                     onPress={() => onMakeAppointment(business.id, business.name, services, duration, clickedServices)} style={styles.button}>
                     <Text style={styles.buttonText}>{clickedServices.length <= 0 ? 'Изберете услуги' : 'Запази си час'}</Text>
-                </TouchableHighlight>
+                </TouchableHighlight> :
+                    <TouchableHighlight
+                        disabled={clickedServices.length <= 0}
+                        onPress={signUpForGroupAppointment} style={styles.button}>
+                        <Text style={styles.buttonText}>Запази си място</Text>
+                    </TouchableHighlight>
+                }
             </View>
+
+            <ModalComponent
+                navigation={navigation}
+                nav='Appointments'
+                modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
+                title={'Запазихте си място успешно!'}
+                text={'Ще получите имейл с потвърждение. Детайли можете да видите и в менюто запазени часове.'}
+                btntext={'Продължи'}>
+            </ModalComponent>
 
             <View style={styles.addressContainer}>
                 {business.address && (
@@ -209,21 +253,21 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         shadowColor: '#000',
         shadowOffset: {
-          width: 0,
-          height: 2,
+            width: 0,
+            height: 2,
         },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
-      },
-      addressText: {
+    },
+    addressText: {
         fontSize: 16,
         fontWeight: 'bold',
         marginBottom: 10,
-      },
-      mapContainer: {
+    },
+    mapContainer: {
         height: 200,
         borderRadius: 10,
         overflow: 'hidden',
-      },
+    },
 })

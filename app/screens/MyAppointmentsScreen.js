@@ -52,15 +52,13 @@ const MyAppointmentsScreen = ({ navigation }) => {
                 `${BASE_URL}/customer/appointments/getAll?date_after=${formattedDate}&status=${status}&cacheBuster=${cacheBuster}`,
                 config
             );
-            console.log(response);
-            console.log('Response status:', response.status);
             if (response.data.data) {
-                console.log(response.data.data);
-                setAppointments(response.data.data);
+                const appointmentsArray = Object.values(response.data.data);
+                setAppointments(appointmentsArray);
             }
         } catch (error) {
             console.log(error);
-        }finally {
+        } finally {
             setLoading(false); // Stop loading
         }
     };
@@ -98,6 +96,31 @@ const MyAppointmentsScreen = ({ navigation }) => {
         );
     }
 
+    const customerCancelGroupAppointment = (id) => {
+        Alert.alert(
+            'Отказване на час',
+            'Сигурни ли сте, че искате да откажете своето място? По-късно може да не бъде свободно.',
+            [
+                {
+                    text: 'не отказвай',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Да, откажи',
+                    onPress: async () => {
+                        const url = `${BASE_URL}/customer/group_appointment/cancel/${id}`;
+                        axios.patch(url, '', config).then((response) => {
+                            ToastAndroid.show(`Успешно отказан час`, ToastAndroid.SHORT);
+                            fetchAppointments();
+                        }).catch((error) => {
+                            console.error(error)
+                        });
+                    },
+                },
+            ],
+        );
+    }
+
 
     return (
         <ScrollView style={styles.container}>
@@ -116,7 +139,8 @@ const MyAppointmentsScreen = ({ navigation }) => {
                         <AppointmentComponent
                             key={appointment.id}
                             appointment={appointment}
-                            cancelAppointment={() => handleCancel(appointment.id)} />
+                            cancelAppointment={() => handleCancel(appointment.id)}
+                            customerCancelGroupAppointment={()=>customerCancelGroupAppointment(appointment.id)} />
                     ))
                 ) : (
                     <Text style={styles.text}>Нямате предстоящи часове..</Text>

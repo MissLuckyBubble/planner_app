@@ -115,6 +115,7 @@ function RegisterBusinessScreen({ navigation }) {
                         navigation={navigation}
                         nav='Login'
                         modalVisible={modalVisible}
+                        setModalVisible={setModalVisible}
                         title={'Регистрирахте вашата фирма успешно!'}
                         btntext={'Вход'}>
                     </ModalComponent>
