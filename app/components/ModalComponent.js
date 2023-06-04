@@ -3,9 +3,10 @@ import React from 'react';
 import { Colors } from '../assets/Colors';
 
 //,title,btn,text,btnColor
-function ModalComponent({navigation, nav, modalVisible, title, text, btntext, btnColor, titleColor, btntextColor}) {
+function ModalComponent({navigation, nav, modalVisible, setModalVisible, title, text, btntext, btnColor, titleColor, btntextColor}) {
     const btnClick = () => {
         navigation.navigate(nav)
+        setModalVisible(false);
     }
     return (<Modal
         animationType="slide"
