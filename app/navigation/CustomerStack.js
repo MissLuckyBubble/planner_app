@@ -20,7 +20,8 @@ function CustomerStack(props) {
             screenOptions={{
                 headerShown: false,
                 drawerActiveBackgroundColor: Colors.primary,
-                drawerActiveTintColor: Colors.dark
+                drawerActiveTintColor: Colors.dark,
+                drawerLabelStyle: { marginLeft: -20 }
             }}>
             <Drawer.Screen name="Home" component={HomeScreen}
                 options={{
@@ -67,7 +68,6 @@ function CustomerStack(props) {
 
             <Drawer.Screen name="BusinessDetails" component={BusinessDetailsScreen}
                 options={{
-                    title: 'Business',
                     drawerLabel: () => null, // hide label in drawer
                     drawerStyle: { display: 'none' }, // hide screen in drawer
                     headerShown: false, // hide header
@@ -75,7 +75,6 @@ function CustomerStack(props) {
             />
             <Drawer.Screen name="CommentsScreen" component={CommentsScreen}
                 options={{
-                    title: 'Comments',
                     drawerLabel: () => null, // hide label in drawer
                     drawerStyle: { display: 'none' }, // hide screen in drawer
                     headerShown: false, // hide header
@@ -83,7 +82,6 @@ function CustomerStack(props) {
             />
             <Drawer.Screen name="MakeAppointmentScreen" component={MakeAppointmentScreen}
                 options={{
-                    title: 'Appointment',
                     drawerLabel: () => null, // hide label in drawer
                     drawerStyle: { display: 'none' }, // hide screen in drawer
                     headerShown: false, // hide header
