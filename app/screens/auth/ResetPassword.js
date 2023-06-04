@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, Image, ImageBackground, Alert, ActivityIndicator, StyleSheet } from 'react-native';
-import { Colors } from '../assets/Colors';
-import ForgotPasswordScreen from './ForgotPasswordScreen';
-import ModalComponent from '../components/ModalComponent';
-import { BASE_URL } from '../../config';
+import { Colors } from '../../assets/Colors';
+import ModalComponent from '../../components/ModalComponent';
+import { BASE_URL } from '../../../config';
 import axios from 'axios';
 
 const ResetPasswordScreen = ({ navigation }) => {
@@ -14,18 +13,18 @@ const ResetPasswordScreen = ({ navigation }) => {
     const [password_confirmation, onChangePassConf] = useState(null);
     const [token, setToken] = useState(null);
     const [state, setState] = useState({
-        icon: require("../assets/eye-off.png"),
+        icon: require("../../assets/eye-off.png"),
         password: true
     })
     changeIcon = () => {
         if (state.password == true) {
             setState({
-                icon: require("../assets/eye-on.png"),
+                icon: require("../../assets/eye-on.png"),
                 password: false
             });
         } else {
             setState({
-                icon: require("../assets/eye-off.png"),
+                icon: require("../../assets/eye-off.png"),
                 password: true
             });
         }
@@ -75,17 +74,17 @@ const ResetPasswordScreen = ({ navigation }) => {
 
     return (
         <ImageBackground style={styles.background}
-            source={require("../assets/bg-simple.jpg")}>
+            source={require("../../assets/bg-simple.jpg")}>
             <Image
                 style={styles.icon}
-                source={require("../assets/icon.png")}>
+                source={require("../../assets/icon.png")}>
             </Image>
             <View style={styles.main}>
                 <Text style={styles.title}>Възстановяване на парола</Text>
                 <Text style={{ color: Colors.error }}>{message}</Text>
             </View>
             <View style={styles.inputContainer}>
-                <Image style={styles.inputIcon} source={require("../assets/user.png")}></Image>
+                <Image style={styles.inputIcon} source={require("../../assets/user.png")}></Image>
                 <TextInput
                     style={styles.input}
                     onChangeText={(text) => setEmail(text)}
@@ -94,7 +93,7 @@ const ResetPasswordScreen = ({ navigation }) => {
                 />
             </View>
             <View style={styles.inputContainer}>
-                <Image style={styles.inputIcon} source={require("../assets/pass.png")}></Image>
+                <Image style={styles.inputIcon} source={require("../../assets/pass.png")}></Image>
                 <TextInput
                     style={[styles.input, { width: 210 }]}
                     onChangeText={onChangePass}
@@ -107,7 +106,7 @@ const ResetPasswordScreen = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
             <View style={styles.inputContainer}>
-                <Image style={styles.inputIcon} source={require("../assets/pass.png")}></Image>
+                <Image style={styles.inputIcon} source={require("../../assets/pass.png")}></Image>
                 <TextInput
                     style={[styles.input, { width: 210 }]}
                     onChangeText={onChangePassConf}
@@ -120,7 +119,7 @@ const ResetPasswordScreen = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
             <View style={styles.inputContainer}>
-                <Image style={styles.inputIcon} source={require("../assets/pass.png")}></Image>
+                <Image style={styles.inputIcon} source={require("../../assets/pass.png")}></Image>
                 <TextInput
                     style={styles.input}
                     onChangeText={(text) => setToken(text)}

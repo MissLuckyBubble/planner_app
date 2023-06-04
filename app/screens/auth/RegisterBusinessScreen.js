@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, ImageBackground, Image, TouchableHighlight, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { Colors } from '../assets/Colors';
-import { BASE_URL } from '../../config';
+import { Colors } from '../../assets/Colors';
+import { BASE_URL } from '../../../config';
 import { ScrollView } from 'react-native-gesture-handler';
-import ModalComponent from '../components/ModalComponent';
+import ModalComponent from '../../components/ModalComponent';
 import axios from 'axios';
 
 function RegisterBusinessScreen({ navigation }) {
@@ -82,18 +82,18 @@ function RegisterBusinessScreen({ navigation }) {
         navigation.navigate("Register")
     }
     const [state, setState] = useState({
-        icon: require("../assets/eye-off.png"),
+        icon: require("../../assets/eye-off.png"),
         password: true
     })
     changeIcon = () => {
         if (state.password == true) {
             setState({
-                icon: require("../assets/eye-on.png"),
+                icon: require("../../assets/eye-on.png"),
                 password: false
             });
         } else {
             setState({
-                icon: require("../assets/eye-off.png"),
+                icon: require("../../assets/eye-off.png"),
                 password: true
             });
         }
@@ -102,11 +102,11 @@ function RegisterBusinessScreen({ navigation }) {
 
         <ImageBackground
             style={styles.background}
-            source={require("../assets/bg.jpg")}>
+            source={require("../../assets/bg.jpg")}>
             <ScrollView>
                 <Image
                     style={styles.icon}
-                    source={require("../assets/icon.png")}>
+                    source={require("../../assets/icon.png")}>
                 </Image>
                 <View style={styles.main}>
                     <Text style={styles.title}>Регистрация на фирма</Text>
@@ -130,7 +130,7 @@ function RegisterBusinessScreen({ navigation }) {
                         />
                     </View>
                     <View style={styles.inputContainer}>
-                        <Image style={styles.inputIcon} source={require("../assets/user.png")}></Image>
+                        <Image style={styles.inputIcon} source={require("../../assets/user.png")}></Image>
                         <TextInput
                             style={styles.input}
                             onChangeText={onChangeEmail}
@@ -139,7 +139,7 @@ function RegisterBusinessScreen({ navigation }) {
                         />
                     </View>
                     <View style={styles.inputContainer}>
-                        <Image style={styles.inputIcon} source={require("../assets/user.png")}></Image>
+                        <Image style={styles.inputIcon} source={require("../../assets/user.png")}></Image>
                         <TextInput
                             style={styles.input}
                             onChangeText={onChangeName}
@@ -148,7 +148,7 @@ function RegisterBusinessScreen({ navigation }) {
                         />
                     </View>
                     <View style={styles.inputContainer}>
-                        <Image style={styles.inputIcon} source={require("../assets/user.png")}></Image>
+                        <Image style={styles.inputIcon} source={require("../../assets/user.png")}></Image>
                         <TextInput
                             style={styles.input}
                             onChangeText={onChangeEik}
@@ -158,7 +158,7 @@ function RegisterBusinessScreen({ navigation }) {
                         />
                     </View>
                     <View style={styles.inputContainer}>
-                        <Image style={styles.inputIcon} source={require("../assets/pass.png")}></Image>
+                        <Image style={styles.inputIcon} source={require("../../assets/pass.png")}></Image>
                         <TextInput
                             style={[styles.input, { width: 210 }]}
                             onChangeText={onChangePass}
@@ -171,7 +171,7 @@ function RegisterBusinessScreen({ navigation }) {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.inputContainer}>
-                        <Image style={styles.inputIcon} source={require("../assets/pass.png")}></Image>
+                        <Image style={styles.inputIcon} source={require("../../assets/pass.png")}></Image>
                         <TextInput
                             style={[styles.input, { width: 210 }]}
                             onChangeText={onChangePassConf}

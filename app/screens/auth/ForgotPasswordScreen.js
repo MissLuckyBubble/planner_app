@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Alert, StyleSheet, Image, ImageBackground, Text, ActivityIndicator } from 'react-native';
-import { Colors } from '../assets/Colors';
-import ModalComponent from '../components/ModalComponent';
-import { BASE_URL } from '../../config';
+import { Colors } from '../../assets/Colors';
+import ModalComponent from '../../components/ModalComponent';
+import { BASE_URL } from '../../../config';
 import axios from 'axios';
 
 const ForgotPasswordScreen = ({ navigation }) => {
@@ -49,17 +49,17 @@ const ForgotPasswordScreen = ({ navigation }) => {
 
     return (
         <ImageBackground style={styles.background}
-            source={require("../assets/bg-simple.jpg")}>
+            source={require("../../assets/bg-simple.jpg")}>
             <Image
                 style={styles.icon}
-                source={require("../assets/icon.png")}>
+                source={require("../../assets/icon.png")}>
             </Image>
             <View style={styles.main}>
                 <Text style={styles.title}>Забравена парола</Text>
                 <Text style={{ color: Colors.error }}>{message}</Text>
             </View>
             <View style={styles.inputContainer}>
-                <Image style={styles.inputIcon} source={require("../assets/user.png")}></Image>
+                <Image style={styles.inputIcon} source={require("../../assets/user.png")}></Image>
                 <TextInput
                     style={styles.input}
                     onChangeText={(text) => setEmail(text)}

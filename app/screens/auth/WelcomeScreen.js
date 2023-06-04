@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import { TouchableHighlight, Image, ImageBackground, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import { Colors } from '../assets/Colors'
-import { AuthContext } from '../context/AuthContext';
+import { Colors } from '../../assets/Colors'
+import { AuthContext } from '../../context/AuthContext';
 
 function WelcomeScreen({ navigation }) {
     const {isLoading, userToken} = useContext(AuthContext);
@@ -15,9 +15,9 @@ function WelcomeScreen({ navigation }) {
         <SafeAreaView style={{ flex: 1 }}>
             <ImageBackground
                 style={styles.background}
-                source={require("../assets/bg.jpg")}>
+                source={require("../../assets/bg.jpg")}>
                 <View style={styles.logoConteiner}>
-                    <Image style={styles.logo} source={require("../assets/icon.png")}></Image>
+                    <Image style={styles.logo} source={require("../../assets/icon.png")}></Image>
                     <Text style={styles.title}>Час за вас</Text>
                     <Text style={styles.title}>{userToken}</Text>
                 </View>
