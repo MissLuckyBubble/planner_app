@@ -1,10 +1,10 @@
-import WelcomeScreen from '../screens/WelcomeScreen';
-import LoginScreen from '../screens/LoginScreen';
-import RegisterScreen from '../screens/RegisterScreen';
-import RegisterBusinessScreen from '../screens/RegisterBusinessScreen';
+import WelcomeScreen from '../screens/auth/WelcomeScreen';
+import LoginScreen from '../screens/auth/LoginScreen';
+import RegisterScreen from '../screens/auth/RegisterScreen';
+import RegisterBusinessScreen from '../screens/auth/RegisterBusinessScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
-import ResetPasswordScreen from '../screens/ResetPassword';
+import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
+import ResetPasswordScreen from '../screens/auth/ResetPassword';
 
 const Stack = createNativeStackNavigator();
 function AuthStack() {
