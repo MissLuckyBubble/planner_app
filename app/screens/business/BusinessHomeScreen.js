@@ -132,7 +132,7 @@ function BusinessHomeScreen({ navigation }) {
                 await axios.post(`${BASE_URL}/business/picture/upload`, formData, config);
             } catch (error) {
                 console.error(error);
-            }finally{
+            } finally {
                 getBusiness();
             }
         }
@@ -163,32 +163,56 @@ function BusinessHomeScreen({ navigation }) {
     }
 
     const handleaddService = async (data, id) => {
+        if (data.maxCapacity) {
+            addGroupService(data, id);
+        } else {
+            var data = {
+                title: data.title,
+                duration: data.duration,
+                description: data.description,
+                price: data.price,
+                service_category_id: id,
+            }
+            try {
+                const response = await axios.post(`${BASE_URL}/business/services/create`, data, config
+                );
+            } catch (error) {
+                console.error(error.response.data);
+
+            } finally {
+                getBusiness();
+            }
+        }
+    }
+
+    const addGroupService = async (data, id) => {
+        console.log(data.duration);
         var data = {
             title: data.title,
-            duration_minutes: data.duration_minutes,
+            duration: data.duration,
             description: data.description,
             price: data.price,
             service_category_id: id,
-            is_group: 0
+            max_capacity: data.maxCapacity,
+            date: data.date,
+            start_time: data.hour
         }
         try {
-            const response = await axios.post(`${BASE_URL}/business/services/create`, data, config
+            const response = await axios.post(`${BASE_URL}/business/group_appointment/create`, data, config
             );
         } catch (error) {
             console.error(error.response.data);
-
         } finally {
             getBusiness();
         }
     }
-
     const onServiceDelete = async (serviceId) => {
         try {
             const response = await axios.delete(`${BASE_URL}/business/services/delete/${serviceId}`, config
             );
         } catch (error) {
             console.error(error.response.data);
-        }finally {
+        } finally {
             getBusiness();
         }
     }
