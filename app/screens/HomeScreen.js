@@ -68,7 +68,7 @@ function HomeScreen({ navigation }) {
         setSelectedFilters(filters);
         setModalVisible(false);
     };
-    
+
 
     const handleCancelFilters = () => {
         setModalVisible(false);
@@ -76,20 +76,29 @@ function HomeScreen({ navigation }) {
 
     useEffect(() => {
         getBusinesses();
-    }, [selectedCategoryIds,selectedFilters]);
+    }, [selectedCategoryIds, selectedFilters]);
 
     const [businesses, setBusinesses] = useState([]);
     const getBusinesses = async () => {
-        var city = selectedFilters ? `&city=${selectedFilters.city}` : '';
-        var sortBy = selectedFilters ?  `&sortBy=${selectedFilters.sortBy}` : '';
-        var sortOrder = selectedFilters ?  `&sortOrder=${selectedFilters.sortOrder}` : '';
-        var url = `${BASE_URL}/getAllBusinesses?search=${inputSearch}&category=${selectedCategoryIds}${city}${sortBy}${sortOrder}`;
-
+        var search = inputSearch ? `search=${inputSearch}` : '';
+        var city = selectedFilters?.city ? `&city=${selectedFilters.city}` : '';
+        var sortBy = selectedFilters?.sortBy ? `&sortBy=${selectedFilters.sortBy}` : '';
+        var sortOrder = selectedFilters?.sortOrder ? `&sortOrder=${selectedFilters.sortOrder}` : '';
+        var category = selectedCategoryIds?.length > 0 ? `&category=${selectedCategoryIds}` : '';
+        var latitude = selectedFilters?.latitude ? `&latitude=${selectedFilters.latitude}` : '';
+        var longitude = selectedFilters?.longitude ? `&longitude=${selectedFilters.longitude}` : '';
+        var distance = selectedFilters?.distance ? `&distance=${selectedFilters.distance}` : '';
+        var url = `${BASE_URL}/getAllBusinesses?${search}${category}${city}${sortBy}${sortOrder}${latitude}${longitude}${distance}`;
+        console.log(url);
         try {
-            const response = await axios.get(
-                url,
-                config);
-            result = response.data.data[0];
+            const response = await axios.get(url, config);
+            var result;
+            if (response && response.data && response.data.data && response.data.data.length > 0) {
+                result = response.data.data[0];
+                console.log(result);
+            } else {
+                console.log("Data is missing or empty");
+            }
             if (result)
                 setBusinesses(result && result.length > 0 ? result.map(business => {
                     const categoryTitles = business.business_category.map(c => c.title);

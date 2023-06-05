@@ -110,7 +110,7 @@ const autocompleteStyles = {
     row: {
         height: 30,
         padding: 5,
-        backgroundColor: '#ccc'
+        backgroundColor: Colors.white
     }
 };
 const styles = {

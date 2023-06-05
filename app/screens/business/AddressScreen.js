@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import AutoComplete from '../../components/Addresses/AutoComplete';
 import MapComponent from '../../components/Addresses/MapComponent';
+import GetLocation from 'react-native-get-location';
 
 
 const AddressScreen = ({ navigation }) => {
@@ -35,12 +36,34 @@ const AddressScreen = ({ navigation }) => {
       console.error(error);
     }
   };
-  
+
   useEffect(() => {
     getBusiness();
   }, []);
 
-  const saveAddress = async (street,city,postalCode,country,latitude,longitude) => {
+  const location = () => {
+    GetLocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 60000,
+    })
+      .then(location => {
+        console.log(location);
+        Geocoder.from({
+          lat: location.latitude,
+          lng: location.longitude
+        }).then(address => {
+          console.log(address.results[0].formatted_address);
+          setCity(address.results[0].formatted_address);
+        })
+
+      })
+      .catch(error => {
+        const { code, message } = error;
+        console.warn(code, message);
+      })
+  }
+
+  const saveAddress = async (street, city, postalCode, country, latitude, longitude) => {
     const form = {
       city: city,
       street: street,
@@ -49,7 +72,7 @@ const AddressScreen = ({ navigation }) => {
       latitude: latitude,
       longitude: longitude
     }
-     try {
+    try {
       const response = await axios.put(`${BASE_URL}/business/address/edit`, form, config);
       const result = response.data.data;
       setBusiness(result[0]);
@@ -71,13 +94,13 @@ const AddressScreen = ({ navigation }) => {
         <Text style={styles.info}>{business && business.address && business.address.description}</Text>
         <View>
           <MapComponent
-            latitude={business && business.address &&  parseFloat(business.address.latitude)}
+            latitude={business && business.address && parseFloat(business.address.latitude)}
             longitude={business && business.address && parseFloat(business.address.longitude)}
             height={200}>
           </MapComponent>
         </View>
         <AutoComplete
-        setNewAddress={saveAddress}
+          setNewAddress={saveAddress}
         ></AutoComplete>
       </View>
     </View >

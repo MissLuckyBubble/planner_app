@@ -3,20 +3,83 @@ import { View, Text, TouchableOpacity, Modal, StyleSheet, TextInput } from 'reac
 import { Colors } from '../assets/Colors';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { googleKey } from '../../config';
+import GetLocation from 'react-native-get-location'
+import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import { commonStyles } from '../assets/Styles';
 
 const FiltersModalComponent = ({ visible, onClose, onApply }) => {
     const [sortBy, setSortBy] = useState('');
     const [sortOrder, setSortOrder] = useState('');
     const [city, setCity] = useState('');
-
+    const [address, setAddress] = useState({});
     const handleApplyFilters = () => {
         const filters = {
             sortBy,
             sortOrder,
             city,
+            latitude: address.lat,
+            longitude: address.lng,
+            distance: sliderOneValue[0]
         };
         onApply(filters);
+        setCity('');
     };
+
+    const handlePlaceSelect = (data, details) => {
+        const addressComponents = details?.address_components || [];
+        var address = '';
+        console.log(details?.address_components);
+        addressComponents.forEach((component) => {
+            const { types, long_name } = component;
+
+            if (types.includes('route')) {
+                address = address + long_name;
+            } else if (types.includes('locality')) {
+                address = address + ' ' + long_name;
+            }
+        });
+        setCity(address);
+    }
+
+    const location = () => {
+        GetLocation.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 60000,
+        })
+            .then(location => {
+                setAddress({
+                    'lat': location.latitude,
+                    'lng': location.longitude
+                })
+            })
+            .catch(error => {
+                const { code, message } = error;
+                console.warn(code, message);
+            })
+    }
+    const findNearMe = () => {
+        if (address.lat) {
+            setAddress({});
+            setSliderOneValue([])
+            return;
+        }
+        setSliderOneValue([10])
+        location();
+        setCity('');
+    }
+    const [sliderOneChanging, setSliderOneChanging] = useState(false);
+    const [sliderOneValue, setSliderOneValue] = useState([10]);
+
+    const sliderOneValuesChangeStart = () => setSliderOneChanging(true);
+
+    const sliderOneValuesChange = values => {
+        console.log(values);
+        setSliderOneValue(values)
+    };
+
+    const sliderOneValuesChangeFinish = () => setSliderOneChanging(false);
 
     return (
         <Modal
@@ -59,16 +122,58 @@ const FiltersModalComponent = ({ visible, onClose, onApply }) => {
                         <FontAwesomeIcon icon={faTrashCan} size={20} color={Colors.error} />
                     </TouchableOpacity>
                 </View>
+                <TouchableOpacity
+                    style={[styles.filterButton, { width: 305 }, address.lat && styles.selectedFilterButton]}
+                    onPress={findNearMe}>
+                    <Text style={[styles.filterButtonText, sortBy === 'Име' && styles.selectedFilterButtonText]}>Намери най-близо да мен</Text>
+                </TouchableOpacity>
 
-                <Text>Град:</Text>
-                <View style={styles.filterSection}>
-                    <TextInput
-                        style={styles.input}
-                        onChangeText={text => setCity(text)}
-                        value={city}
-                        placeholder="Въведи град..."
-                    />
+                <View style={{ height: 250, width: 300 }}>
+                    <Text style={{ textAlign: 'center' }}>{!address.lat && 'или...'}</Text>
+                    {!address.lat ?
+                        <View>
+                            <GooglePlacesAutocomplete
+                                placeholder='Въведете локация...'
+                                onPress={handlePlaceSelect}
+                                minLength={1}
+                                query={{
+                                    key: googleKey,
+                                    language: 'bg',
+                                    components: 'country:bg'
+                                }}
+                                keepResultsAfterBlur={true}
+                                autoFocus={false}
+                                fetchDetails={true}
+                                styles={autocompleteStyles}
+                            />
+                        </View> :
+                        <View style={commonStyles.container}>
+                            <Text style={commonStyles.simpleText}>Максимална Дистанция: {sliderOneValue} км.</Text>
+                            <View style={{
+                                width: 280,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                            }}>
+                                <Text>1км</Text>
+                                <Text>50км</Text>
+                            </View>
+                            <MultiSlider
+                                values={sliderOneValue}
+                                min={1}
+                                max={50}
+                                step={1}
+                                showSteps={true}
+                                swhoStepMarkers={true}
+                                showStepMarkers={true}
+                                showStepLabels={true}
+                                sliderLength={280}
+                                onValuesChangeStart={sliderOneValuesChangeStart}
+                                onValuesChange={sliderOneValuesChange}
+                                onValuesChangeFinish={sliderOneValuesChangeFinish}
+                            />
+                        </View>}
                 </View>
+
 
                 <View style={styles.buttonsContainer}>
                     <TouchableOpacity style={styles.button} onPress={onClose}>
@@ -89,7 +194,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         margin: 20,
         paddingBottom: 10,
-        borderRadius: 10,
+        borderRadius: 20,
         borderColor: Colors.dark,
         shadowColor: "#000",
         shadowOffset: {
@@ -106,17 +211,6 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.dark,
         marginBottom: 10,
         padding: 5,
-    },
-    input: {
-        width: '80%',
-        height: 35,
-        flexDirection: 'row',
-        alignItems: 'center',
-        margin: 10,
-        backgroundColor: Colors.white,
-        borderWidth: 1,
-        borderRadius: 10,
-        borderColor: Colors.dark
     },
     title: {
         fontSize: 20,
@@ -140,6 +234,7 @@ const styles = StyleSheet.create({
     filterButtonText: {
         color: '#333',
         fontSize: 16,
+        textAlign: 'center',
     },
     selectedFilterButtonText: {
         color: Colors.dark,
@@ -162,4 +257,19 @@ const styles = StyleSheet.create({
     },
 });
 
+const autocompleteStyles = {
+    textInputContainer: {
+        width: '100%',
+    },
+    textInput: commonStyles.input,
+    listView: {
+        zIndex: 10,
+        margin: 2,
+    },
+    row: {
+        height: 30,
+        padding: 5,
+        backgroundColor: Colors.white
+    }
+};
 export default FiltersModalComponent;

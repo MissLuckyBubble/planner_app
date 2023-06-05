@@ -19,11 +19,28 @@ export const commonStyles = {
         alignItems: 'center',
     },
     input: {
-        width:340,
+        width: 340,
         padding: 5,
         borderRadius: 10,
         borderColor: Colors.primary,
         borderWidth: 2,
         marginRight: 10
     },
+    container: {
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 20,
+        alignItems: 'center',
+        shadowColor: Colors.dark,
+        shadowOpacity: 0.25,
+        shadowRadius: 5,
+        elevation: 5,
+        textAlign: 'center'
+    },
+    simpleText: {
+        margin:5,
+        marginBottom:10,
+        color:Colors.dark,
+        fontSize: 16,
+    }
 };
