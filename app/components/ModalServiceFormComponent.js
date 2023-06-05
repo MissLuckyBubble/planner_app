@@ -13,13 +13,14 @@ const ModalServiceFormComponent = ({ visible, onCancel, onSave, initialData }) =
     const [date, setDate] = useState('');
     const [hour, setHour] = useState('');
     const [maxCapacity, setMaxCapacity] = useState('');
-
+    const [id, setId] = useState('');
     useEffect(() => {
         if (initialData) {
             setTitle(initialData.title);
             setDurationMinutes(initialData.duration);
             setDescription(initialData.description);
             setPrice(initialData.price);
+            setId(initialData.id);
         }
     }, [initialData]);
 
@@ -36,7 +37,8 @@ const ModalServiceFormComponent = ({ visible, onCancel, onSave, initialData }) =
             price,
             maxCapacity,
             date,
-            hour
+            hour,
+            id
         });
         clearForm();
     };
@@ -57,7 +59,7 @@ const ModalServiceFormComponent = ({ visible, onCancel, onSave, initialData }) =
         <Modal visible={visible} animationType="slide">
             <ImageBackground style={styles.container} source={require("../assets/bg-simple.jpg")}>
                 <Text style={styles.title}>Добавяне на услуга</Text>
-                <View style={styles.row}>
+                {!initialData && <View style={styles.row}>
                     <Text style={styles.text}>Групов час:</Text>
                     <CheckBox
                         value={is_group}
@@ -76,7 +78,7 @@ const ModalServiceFormComponent = ({ visible, onCancel, onSave, initialData }) =
                                 keyboardType="numeric"
                             />
                         </View>}
-                </View>
+                </View>}
                 <TextInput
                     style={styles.input}
                     value={title}
@@ -183,10 +185,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 5
     },
-    text:{
-        marginHorizontal:10,
-        marginLeft:20,
-        marginBottom:10
+    text: {
+        marginHorizontal: 10,
+        marginLeft: 20,
+        marginBottom: 10
     }
 });
 

@@ -1,24 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Alert, TextInput, TouchableOpacity, Text, StyleSheet, View, ScrollView, ToastAndroid } from 'react-native';
-import { AuthContext } from '../../context/AuthContext';
 import axios from 'axios';
 import { BASE_URL } from '../../../config';
 import PicutresComponent from '../../components/PicturesComponent';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBars, faPenToSquare, faSquareCheck, faRectangleXmark } from '@fortawesome/free-solid-svg-icons';
-
 import { Colors } from '../../assets/Colors';
 import BusinessCategoriesComponent from '../../components/BusinessCategoriesComponent';
-
 import { launchImageLibrary } from 'react-native-image-picker';
-
-
+import { AuthContext } from '../../context/AuthContext';
 
 function BusinessHomeScreen({ navigation }) {
-
-    const openDrawer = () => {
-        navigation.openDrawer();
-    }
 
     const { userToken } = useContext(AuthContext);
     const config = {
@@ -28,23 +20,37 @@ function BusinessHomeScreen({ navigation }) {
             Accept: "application/vnd.api+json",
         }
     };
+    const openDrawer = () => {
+        navigation.openDrawer();
+    }
+    const [editDescription, setEditDescription] = useState(false);
     const [business, setBusiness] = useState([]);
+    const [editName, setEditName] = useState(false);
+    const [addingCategory, setAddingCategory] = useState(false);
+    const [category, onCategoryChange] = useState('');
+    const [description, onDescriptionChange] = useState('');
+    const [name, onNameChange] = useState('');
+
     const url = `${BASE_URL}/business/profile`;
+
     const getBusiness = async () => {
         try {
             const response = await axios.get(url, config);
             const result = response.data.data;
             setBusiness(result);
+            onDescriptionChange(result.description);
+            onNameChange(result.name);
         } catch (error) {
             console.error(error);
+            console.log(error.response.data);
         }
     };
+
     useEffect(() => {
         getBusiness();
     }, []);
 
-    const [editDescription, setEditDescription] = useState(false);
-    const [description, onDescriptionChange] = useState(business.description);
+
 
     const cancelEditDescription = (bool) => {
         onDescriptionChange(business.name);
@@ -64,8 +70,6 @@ function BusinessHomeScreen({ navigation }) {
         setEditDescription(bool);
     };
 
-    const [editName, setEditName] = useState(false);
-    const [name, onNameChange] = useState(business.name);
     const cancelNameEdit = (bool) => {
         onNameChange(business.name);
         setEditName(bool);
@@ -142,8 +146,6 @@ function BusinessHomeScreen({ navigation }) {
         launchImageLibrary({ mediaType: 'photo' }, handleImageSelection);
     };
 
-    const [addingCategory, setAddingCategory] = useState(false);
-    const [category, onCategoryChange] = useState('');
     const cancleAddingCategory = (bool) => {
         onCategoryChange('');
         setAddingCategory(bool);
@@ -160,61 +162,6 @@ function BusinessHomeScreen({ navigation }) {
 
         onCategoryChange('');
         setAddingCategory(bool);
-    }
-
-    const handleaddService = async (data, id) => {
-        if (data.maxCapacity) {
-            addGroupService(data, id);
-        } else {
-            var data = {
-                title: data.title,
-                duration: data.duration,
-                description: data.description,
-                price: data.price,
-                service_category_id: id,
-            }
-            try {
-                const response = await axios.post(`${BASE_URL}/business/services/create`, data, config
-                );
-            } catch (error) {
-                console.error(error.response.data);
-
-            } finally {
-                getBusiness();
-            }
-        }
-    }
-
-    const addGroupService = async (data, id) => {
-        console.log(data.duration);
-        var data = {
-            title: data.title,
-            duration: data.duration,
-            description: data.description,
-            price: data.price,
-            service_category_id: id,
-            max_capacity: data.maxCapacity,
-            date: data.date,
-            start_time: data.hour
-        }
-        try {
-            const response = await axios.post(`${BASE_URL}/business/group_appointment/create`, data, config
-            );
-        } catch (error) {
-            console.error(error.response.data);
-        } finally {
-            getBusiness();
-        }
-    }
-    const onServiceDelete = async (serviceId) => {
-        try {
-            const response = await axios.delete(`${BASE_URL}/business/services/delete/${serviceId}`, config
-            );
-        } catch (error) {
-            console.error(error.response.data);
-        } finally {
-            getBusiness();
-        }
     }
 
     return (
@@ -316,7 +263,7 @@ function BusinessHomeScreen({ navigation }) {
                 </View>
             }
             {
-                business.services_category ? business.services_category.map(category =>
+                business.services_category && business.services_category.map(category =>
                     <BusinessCategoriesComponent
                         key={category.id}
                         id={category.id}
@@ -324,11 +271,9 @@ function BusinessHomeScreen({ navigation }) {
                         services={category.services}
                         disabled={true}
                         handleClickedServices={() => { }}
-                        addService={handleaddService}
-                        onServiceDelete={onServiceDelete}
+                        refresh={getBusiness}
                     />
                 )
-                    : ''
             }
         </ScrollView>
     );

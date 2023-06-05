@@ -10,7 +10,7 @@ import axios from 'axios';
 
 const MAX_DESCRIPTION_LENGTH = 80;
 
-const ServicesComponent = ({ services, clickedServices, style, disabled, onServiceRemoved, onServiceDelete }) => {
+const ServicesComponent = ({ services, handleEditService, clickedServices, style, disabled, onServiceRemoved, onServiceDisable }) => {
     const [servicesList, setServices] = useState(services);
 
     const { user } = useContext(AuthContext);
@@ -114,12 +114,12 @@ const ServicesComponent = ({ services, clickedServices, style, disabled, onServi
                                 </TouchableOpacity>
                             )}
                         </View>
-                        {user.role_id == 2 && onServiceDelete && (
+                        {user.role_id == 2 && onServiceDisable && !service.max_capacity && (
                             <View style={styles.iconContainer}>
                                 <TouchableOpacity style={{ marginBottom: 10 }} onPress={() => handleEditService(service)}>
                                     <FontAwesomeIcon icon={faPenToSquare} size={16} color={Colors.dark} />
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => onServiceDelete(service.id)}>
+                                <TouchableOpacity onPress={() => onServiceDisable(service.id)}>
                                     <FontAwesomeIcon icon={faTrashCan} size={16} color={Colors.error} />
                                 </TouchableOpacity>
                             </View>
@@ -211,6 +211,6 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
         alignItems: 'center',
-        marginBottom:5
+        marginBottom: 5
     },
 });
