@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     inputContainer: {
-        backgroundColor: '#F2F2F2',
+        backgroundColor: Colors.white,
         borderRadius: 10,
         padding: 0,
     },
