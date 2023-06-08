@@ -93,12 +93,13 @@ function HomeScreen({ navigation }) {
         try {
             const response = await axios.get(url, config);
             var result;
-            if (response && response.data && response.data.data && response.data.data.length > 0) {
-                result = response.data.data[0];
+            if(response && response.data && response.data.data){
+                result = response.data.data;
                 console.log(result);
-            } else {
-                console.log("Data is missing or empty");
+            }else {
+                console.log('data is missing');
             }
+            
             if (result)
                 setBusinesses(result && result.length > 0 ? result.map(business => {
                     const categoryTitles = business.business_category.map(c => c.title);

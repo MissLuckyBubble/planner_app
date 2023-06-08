@@ -83,9 +83,9 @@ function BusinessCalendar({ navigation }) {
             console.log('im in try');
             const cacheBuster = new Date().getTime(); // Generate a unique value for each request
             const response = await axios.get(`${BASE_URL}/business/appointments/getAll?cacheBuster=${cacheBuster}`, config);
-            console.log(response.status)
+            // console.log(response.status, response)
             const result = response.data.data;
-            console.log('result:', result);
+            console.log('result:', response.status);
             if (result && result != []) {
                 console.log('creating appointments from result');
                 const appointments = Object.values(result).map((appointment) => ({
@@ -144,7 +144,7 @@ function BusinessCalendar({ navigation }) {
                     duration, total_price,
                     customer, services,
                     max_capacity, count_ppl,
-                    title , description, 
+                    title, description,
                 });
             });
         }
@@ -238,6 +238,32 @@ function BusinessCalendar({ navigation }) {
         );
     }
 
+    const cancleGroupClicked = () => {
+        Alert.alert(
+            'Отменяне на групова среща',
+            'Сигурни ли сте, че искате да отмените тази групова среща? Всички кленти, запазили място, ще получат имейл с информация за отменянето му.',
+            [
+                {
+                    text: 'не отказвай',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Да, откажи',
+                    onPress: async () => {
+                        try {
+                            const response = await axios.patch(`${BASE_URL}/business/group_appointment/cancel/${clickedItem.id}`, '', config);
+                        } catch (error) {
+                            console.error(error);
+                        } finally {
+                            getAppointments();
+                            setDetailsModalVisible(false);
+                        }
+                    },
+                },
+            ],
+        );
+    }
+
     const deleteClicked = () => {
         Alert.alert(
             'Изтриване на час',
@@ -283,6 +309,7 @@ function BusinessCalendar({ navigation }) {
                 clickedItem={clickedItem}
                 cancleClicked={cancleClicked}
                 deleteClicked={deleteClicked}
+                cancleGroupClicked={cancleGroupClicked}
             />
             {addingNewAppointment &&
                 <View>

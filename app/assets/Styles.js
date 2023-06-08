@@ -42,5 +42,11 @@ export const commonStyles = {
         marginBottom:10,
         color:Colors.dark,
         fontSize: 16,
+    },
+    errorText: {
+        margin:5,
+        color:Colors.error,
+        fontSize: 16,
+        textAlign:'center'
     }
 };

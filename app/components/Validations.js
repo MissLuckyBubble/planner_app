@@ -9,5 +9,19 @@ export const isValidHour = (hour) => {
 };
 
 export const isNotEmpty = (text) => {
-    return text !== '' && text !== null && text !== undefined;
+    return text !== '' && text !== null && text !== undefined && text.trim() != '';
 };
+
+export const isValidPhoneNumber = (phone) => {
+    const phoneNumberRegex = /^\d{9}$/;
+    return phoneNumberRegex.test(phone);
+}
+
+export const isPositiveDecimalNumber = (number) => {
+    const positiveNumberRegex = /^\d{1,3}\.\d{1,2}$|^\d{1,3}$/;
+    return positiveNumberRegex.test(number);
+}
+export const isPositiveInt = (number) => {
+    const positiveNumberRegex = /^\d{1,3}$/;
+    return positiveNumberRegex.test(number);
+}

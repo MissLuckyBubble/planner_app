@@ -9,6 +9,9 @@ import { Colors } from '../../assets/Colors';
 import BusinessCategoriesComponent from '../../components/BusinessCategoriesComponent';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { AuthContext } from '../../context/AuthContext';
+import { isValidDate } from '../../components/Validations';
+import { isNotEmpty } from '../../components/Validations';
+import { commonStyles } from '../../assets/Styles';
 
 function BusinessHomeScreen({ navigation }) {
 
@@ -30,6 +33,9 @@ function BusinessHomeScreen({ navigation }) {
     const [category, onCategoryChange] = useState('');
     const [description, onDescriptionChange] = useState('');
     const [name, onNameChange] = useState('');
+    const [nameError, setNameError] = useState('');
+    const [descriptionError, setDescriptionError] = useState('');
+    const [categoryError, setCategoryError] = useState('');
 
     const url = `${BASE_URL}/business/profile`;
 
@@ -53,10 +59,16 @@ function BusinessHomeScreen({ navigation }) {
 
 
     const cancelEditDescription = (bool) => {
-        onDescriptionChange(business.name);
+        onDescriptionChange(business.description);
+        setDescriptionError('');
         setEditDescription(bool);
     }
+
     const saveDescription = async (bool) => {
+        if (!isNotEmpty(description)) {
+            setDescriptionError('Това поле е задължително.');
+            return;
+        } else setDescriptionError('');
         try {
             const response = await axios.patch(`${url}/edit?description=${description}`, '', config
             );
@@ -72,9 +84,14 @@ function BusinessHomeScreen({ navigation }) {
 
     const cancelNameEdit = (bool) => {
         onNameChange(business.name);
+        setNameError('');
         setEditName(bool);
     }
     const saveName = async (bool) => {
+        if (!isNotEmpty(name)) {
+            setNameError('*');
+            return;
+        } else setNameError('');
         try {
             const response = await axios.patch(`${url}/edit?name=${name}`, '', config
             );
@@ -148,9 +165,14 @@ function BusinessHomeScreen({ navigation }) {
 
     const cancleAddingCategory = (bool) => {
         onCategoryChange('');
+        setCategoryError('');
         setAddingCategory(bool);
     }
     const saveCategory = async (bool) => {
+        if (!isNotEmpty(category)) {
+            setCategoryError('Това поле е задължително');
+            return;
+        } else setCategoryError('');
         try {
             const response = await axios.post(`${BASE_URL}/business/serviceCategory/create`, { title: category }, config
             );
@@ -172,11 +194,12 @@ function BusinessHomeScreen({ navigation }) {
                     <TouchableOpacity style={{ marginRight: 40 }} onPress={() => setEditName(true)}>
                         <FontAwesomeIcon icon={faPenToSquare} size={20} color={Colors.dark} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={openDrawer}>
+                    <TouchableOpacity onPress={openDrawer} style={{alignSelf:'flex-end'}}>
                         <FontAwesomeIcon icon={faBars} size={24} color={Colors.dark} />
                     </TouchableOpacity>
                 </View> :
                 <View style={styles.topContainer}>
+                    {nameError && <Text style={[commonStyles.simpleText, { color: Colors.error, alignSelf: 'center' }]}>{nameError}</Text>}
                     <TextInput
                         editable
                         multiline
@@ -211,6 +234,7 @@ function BusinessHomeScreen({ navigation }) {
             {addingCategory &&
                 <View style={styles.descriptionConteiner}>
                     <View style={styles.inputContainer}>
+                        {categoryError && <Text style={[commonStyles.simpleText, { color: Colors.error, alignSelf: 'center' }]}>{categoryError}</Text>}
                         <TextInput
                             editable
                             style={styles.input}
@@ -242,6 +266,7 @@ function BusinessHomeScreen({ navigation }) {
                 </View> :
                 <View style={styles.descriptionConteiner}>
                     <View style={styles.inputContainer}>
+                        {descriptionError && <Text style={[commonStyles.simpleText, { color: Colors.error, alignSelf: 'center' }]}>{descriptionError}</Text>}
                         <TextInput
                             editable
                             multiline

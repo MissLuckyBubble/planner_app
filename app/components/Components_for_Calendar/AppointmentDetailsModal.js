@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import AppointmentComponent from "../AppointmentComponent";
 
-function AppointmentDetailsModal({ modalVisible, setModalVisible, clickedItem, cancleClicked, deleteClicked }) {
+function AppointmentDetailsModal({ modalVisible, setModalVisible, clickedItem, cancleClicked, deleteClicked, cancleGroupClicked }) {
 
     return (
         <Modal
@@ -38,7 +38,7 @@ function AppointmentDetailsModal({ modalVisible, setModalVisible, clickedItem, c
                                 {clickedItem.max_capacity ?
                                 <TouchableOpacity
                                     style={[styles.button, { backgroundColor: Colors.error }]}
-                                    onPress={deleteClicked}>
+                                    onPress={cancleGroupClicked}>
                                     <Text style={[styles.btntext, { color: Colors.white }]}>Отмени груповата среща</Text>
                                 </TouchableOpacity> :
                                 <TouchableOpacity

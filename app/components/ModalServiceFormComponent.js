@@ -3,6 +3,8 @@ import { ImageBackground, StyleSheet, View, Modal, TextInput, TouchableOpacity, 
 import { Colors } from '../assets/Colors';
 import CheckBox from '@react-native-community/checkbox';
 import { TextInputMask } from 'react-native-masked-text';
+import { isNotEmpty, isPositiveDecimalNumber, isPositiveInt, isValidDate, isValidHour } from './Validations';
+import { commonStyles } from '../assets/Styles';
 
 const ModalServiceFormComponent = ({ visible, onCancel, onSave, initialData }) => {
     const [title, setTitle] = useState('');
@@ -14,6 +16,16 @@ const ModalServiceFormComponent = ({ visible, onCancel, onSave, initialData }) =
     const [hour, setHour] = useState('');
     const [maxCapacity, setMaxCapacity] = useState('');
     const [id, setId] = useState('');
+
+    const [titleError, setTitleError] = useState('');
+    const [durationError, setDurationError] = useState('');
+    const [descriptionError, setDescriptionError] = useState('');
+    const [priceError, setPriceError] = useState('');
+    const [maxCapacityError, setMaxCapacityError] = useState('');
+    const [dateHourError, setDateHourError] = useState('');
+
+    const [errors, setErrors] = useState(false);
+
     useEffect(() => {
         if (initialData) {
             setTitle(initialData.title);
@@ -30,6 +42,39 @@ const ModalServiceFormComponent = ({ visible, onCancel, onSave, initialData }) =
     };
 
     const handleSave = () => {
+        let hasErrors = false;
+
+        if (is_group) {
+            if (!isPositiveInt(maxCapacity)) {
+                setMaxCapacityError('*');
+                hasErrors = true;
+            } else setMaxCapacity('');
+            if (!isValidDate(date) || !isValidHour(hour) || (!isValidDate(date) && !isValidHour(hour))) {
+                setDateHourError('Невалидни дата и/или час')
+                hasErrors = true;
+            } else setDateHourError('');
+        }
+        if (!isNotEmpty(title)) {
+            setTitleError('Заглавието е задължително поле');
+            hasErrors = true;
+        } else setTitleError('');
+        if (!isNotEmpty(description)) {
+            setDescriptionError('Описането е задължително поле');
+            hasErrors = true;
+        } else setDescriptionError('');
+        if (!isPositiveInt(duration)) {
+            setDurationError('Невалидно времетраене');
+            hasErrors = true;
+        } else setDurationError('');
+        if (!isPositiveDecimalNumber(price)) {
+            setPriceError('Невалидна сума');
+            hasErrors = true;
+        } else setPrice('');
+
+        if (hasErrors) {
+            setErrors(true);
+            return;
+        }
         onSave({
             title,
             duration,
@@ -53,12 +98,23 @@ const ModalServiceFormComponent = ({ visible, onCancel, onSave, initialData }) =
         setMaxCapacity('');
         setDate('');
         setHour('');
+
+        setTitleError('');
+        setDurationError('');
+        setDescriptionError('');
+        setPriceError('');
+        setMaxCapacityError('');
+        setDateHourError('');
+
+        setErrors(false);
+
     };
 
     return (
         <Modal visible={visible} animationType="slide">
             <ImageBackground style={styles.container} source={require("../assets/bg-simple.jpg")}>
-                <Text style={styles.title}>Добавяне на услуга</Text>
+                <Text style={styles.title}>{initialData ? 'Редактиране на услуга' : 'Добавяне на услуга'}</Text>
+                {errors && <Text style={commonStyles.errorText}>Моля въведте валидни данни.</Text>}
                 {!initialData && <View style={styles.row}>
                     <Text style={styles.text}>Групов час:</Text>
                     <CheckBox
@@ -68,9 +124,13 @@ const ModalServiceFormComponent = ({ visible, onCancel, onSave, initialData }) =
                     />
                     {is_group &&
                         <View style={styles.row}>
-                            <Text style={styles.text}> Брой Хора</Text>
+                            <Text
+                                style={[styles.text,
+                                maxCapacityError && commonStyles.errorText]}>
+                                {maxCapacityError && maxCapacityError} Брой Хора
+                            </Text>
                             <TextInput
-                                style={styles.input}
+                                style={[styles.input, maxCapacityError && styles.errorInput]}
                                 value={maxCapacity}
                                 min={0}
                                 onChangeText={setMaxCapacity}
@@ -80,20 +140,20 @@ const ModalServiceFormComponent = ({ visible, onCancel, onSave, initialData }) =
                         </View>}
                 </View>}
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input, titleError && styles.errorInput]}
                     value={title}
                     onChangeText={setTitle}
                     placeholder="Заглавие.."
                 />
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input, durationError && styles.errorInput]}
                     value={duration}
                     onChangeText={setDurationMinutes}
                     placeholder="Времетраене"
                     keyboardType="numeric"
                 />
                 <TextInput
-                    style={[styles.input, { height: 100 }]}
+                    style={[styles.input, { height: 75 }, descriptionError && styles.errorInput]}
                     maxLength={500}
                     multiline
                     numberOfLines={2}
@@ -102,7 +162,7 @@ const ModalServiceFormComponent = ({ visible, onCancel, onSave, initialData }) =
                     placeholder="Описание"
                 />
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input, priceError && styles.errorInput]}
                     value={price}
                     onChangeText={setPrice}
                     placeholder="Цена"
@@ -110,6 +170,7 @@ const ModalServiceFormComponent = ({ visible, onCancel, onSave, initialData }) =
                 />
                 {is_group &&
                     <View>
+                        <Text style={commonStyles.errorText}>{dateHourError}</Text>
                         <View style={styles.row}>
                             <Text style={styles.text}>Дата</Text>
                             <TextInputMask
@@ -118,7 +179,7 @@ const ModalServiceFormComponent = ({ visible, onCancel, onSave, initialData }) =
                                 placeholder={'yyyy-mm-dd'}
                                 value={date}
                                 onChangeText={setDate}
-                                style={styles.input}
+                                style={[styles.input, dateHourError && styles.errorInput]}
                             />
                             <Text style={styles.text}>Час</Text>
                             <TextInputMask
@@ -127,7 +188,7 @@ const ModalServiceFormComponent = ({ visible, onCancel, onSave, initialData }) =
                                 placeholder={'00:00'}
                                 value={hour}
                                 onChangeText={setHour}
-                                style={styles.input}
+                                style={[styles.input, dateHourError && styles.errorInput]}
                             />
                         </View>
                     </View>}
@@ -189,6 +250,9 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
         marginLeft: 20,
         marginBottom: 10
+    },
+    errorInput: {
+        borderColor: Colors.error
     }
 });
 

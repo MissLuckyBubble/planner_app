@@ -27,6 +27,7 @@ const AddressScreen = ({ navigation }) => {
   };
 
   const [business, setBusiness] = useState([]);
+
   const getBusiness = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/business/profile`, config);
@@ -68,14 +69,14 @@ const AddressScreen = ({ navigation }) => {
       city: city,
       street: street,
       postal_code: postalCode,
-      description: `${street}, ${city}, ${postalCode}`,
+      description: `${street}`,
       latitude: latitude,
       longitude: longitude
     }
     try {
       const response = await axios.put(`${BASE_URL}/business/address/edit`, form, config);
       const result = response.data.data;
-      setBusiness(result[0]);
+      setBusiness(result);
     } catch (error) {
       console.error(error.response.data.message);
     }
@@ -89,14 +90,14 @@ const AddressScreen = ({ navigation }) => {
           <FontAwesomeIcon icon={faBars} size={24} color={Colors.dark} />
         </TouchableOpacity>
       </View>
-      <View style={{ padding: 10 }}>
+      <View style={{ padding: 10, minHeight: '90%' }}>
         <Text style={[styles.label]}>Адрес</Text>
         <Text style={styles.info}>{business && business.address && business.address.description}</Text>
         <View>
           <MapComponent
             latitude={business && business.address && parseFloat(business.address.latitude)}
             longitude={business && business.address && parseFloat(business.address.longitude)}
-            height={200}>
+            height={175}>
           </MapComponent>
         </View>
         <AutoComplete
@@ -144,8 +145,8 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   info: {
-    fontSize: 20,
-    padding: 10,
+    fontSize: 14,
+    padding: 5,
     borderRadius: 10,
   },
 

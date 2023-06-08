@@ -125,28 +125,26 @@ const FiltersModalComponent = ({ visible, onClose, onApply }) => {
                 <TouchableOpacity
                     style={[styles.filterButton, { width: 305 }, address.lat && styles.selectedFilterButton]}
                     onPress={findNearMe}>
-                    <Text style={[styles.filterButtonText, sortBy === 'Име' && styles.selectedFilterButtonText]}>Намери най-близо да мен</Text>
+                    <Text style={[styles.filterButtonText, sortBy === 'Име' && styles.selectedFilterButtonText]}>Намери най-близо до мен</Text>
                 </TouchableOpacity>
 
                 <View style={{ height: 250, width: 300 }}>
                     <Text style={{ textAlign: 'center' }}>{!address.lat && 'или...'}</Text>
                     {!address.lat ?
-                        <View>
-                            <GooglePlacesAutocomplete
-                                placeholder='Въведете локация...'
-                                onPress={handlePlaceSelect}
-                                minLength={1}
-                                query={{
-                                    key: googleKey,
-                                    language: 'bg',
-                                    components: 'country:bg'
-                                }}
-                                keepResultsAfterBlur={true}
-                                autoFocus={false}
-                                fetchDetails={true}
-                                styles={autocompleteStyles}
-                            />
-                        </View> :
+                        <GooglePlacesAutocomplete
+                            placeholder='Въведете локация...'
+                            onPress={handlePlaceSelect}
+                            minLength={1}
+                            query={{
+                                key: googleKey,
+                                language: 'bg',
+                                components: 'country:bg'
+                            }}
+                            keepResultsAfterBlur={true}
+                            autoFocus={false}
+                            fetchDetails={true}
+                            styles={autocompleteStyles}
+                        /> :
                         <View style={commonStyles.container}>
                             <Text style={commonStyles.simpleText}>Максимална Дистанция: {sliderOneValue} км.</Text>
                             <View style={{

@@ -83,6 +83,17 @@ const WorkTimeScreen = ({ navigation }) => {
           config);
       } catch (error) {
         console.log(error.response.data.message);
+        var msg = error.response.data.message;
+        if (msg.includes('Края трябва да е след старта на работния ден.')) {
+          setError('Края трябва да е след старта на работния ден.');
+        } else if (msg.includes('Старта на почивката трябва да е преди края на работния ден.')) {
+          setError('Старта на почивката трябва да е преди края на работния ден.');
+        } else if (msg.includes('Края на почивката трябва да е след началото й.')) {
+          setError('Края на почивката трябва да е след началото й.');
+        } else if (msg.includes('Края на почивката трябва да е преди края на работния ден.')) {
+          setError('Края на почивката трябва да е преди края на работния ден.');
+        } else setError('Възникна грешка моля опитайте отново');
+        return;
       }
       setEditingDaysId([]);
       getSchedule();

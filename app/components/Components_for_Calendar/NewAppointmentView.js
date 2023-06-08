@@ -6,8 +6,7 @@ import axios from "axios";
 import { BASE_URL } from "../../../config";
 import { TextInputMask } from 'react-native-masked-text';
 import BusinessCategoriesComponent from "../BusinessCategoriesComponent";
-import { Picker } from "@react-native-picker/picker";
-import { isValidDate, isValidHour } from "../Validations";
+import { isValidDate, isValidHour, isValidPhoneNumber } from "../Validations";
 
 function NewAppointmentView({ setAddingNewAppointment, selectedDay, getAppointments }) {
 
@@ -67,9 +66,15 @@ function NewAppointmentView({ setAddingNewAppointment, selectedDay, getAppointme
     const saveAppointment = async () => {
         console.log(clickedServices);
         if (!isValidDate(date) || !isValidHour(hour)) {
-            setError('Невалидни данни.')
+            setError('Невалиден час или дата.')
             return;
         } else setError('');
+        if (phoneNumber) {
+            if (!isValidPhoneNumber(phoneNumber)) {
+                setError('Невалидeн телефонен номер.')
+                return;
+            } else setError('');
+        }
         var form = {
             date: selectedDay,
             start_time: hour,
@@ -96,10 +101,31 @@ function NewAppointmentView({ setAddingNewAppointment, selectedDay, getAppointme
         try {
             await axios.patch(`${BASE_URL}/business/group_appointment/add_clients/${services[0].id}`, { count }, config);
         } catch (error) {
-            console.error(error);
+            console.log(error);
+            console.log(error.response.data.message);
+            if (error.response.data.message.includes('Надвишавате'))
+                setError('Надвишавате максималтия капацитет.')
         } finally {
             getAppointments();
-            setAddingNewAppointment(false);
+        }
+    }
+
+    const remove_clients = async () => {
+        if (+parseInt(services[0].count_ppl, 10) - parseInt(count) < 0 || parseInt(count) <= 0) {
+            setError('Не може да премахнете повече хора от колкото са записани.')
+            return;
+        } else setError('');
+        try {
+            await axios.patch(
+                `${BASE_URL}/business/group_appointment/remove_clients/${services[0].id}`,
+                { count }, config).then(() => {
+                    getAppointments();
+                });
+        } catch (error) {
+            console.log(error);
+            console.log(error.response.data.message);
+            if (error.response.data.message.includes('бройка'))
+                setError('Не може, да премахвате хора, който не сте добавили вие.')
         }
     }
 
@@ -150,7 +176,7 @@ function NewAppointmentView({ setAddingNewAppointment, selectedDay, getAppointme
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.button, { width: '25%', backgroundColor: Colors.error }]}
-                                onPress={saveAppointment}>
+                                onPress={remove_clients}>
                                 <Text style={[styles.btntext]}> Премахи</Text>
                             </TouchableOpacity>
                         </View>

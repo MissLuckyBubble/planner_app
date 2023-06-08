@@ -51,7 +51,7 @@ function BusinessDetailsScreen({ navigation, route }) {
         const getBusiness = async () => {
             try {
                 const response = await axios.get(`${BASE_URL}/getBusiness/${id}`, config);
-                const result = response.data.data[0];
+                const result = response.data.data;
                 setBusines(result);
             } catch (error) {
                 console.error(error);

@@ -31,7 +31,7 @@ function CommentsScreen({ navigation, route }) {
             if (user.role_id == 1) {
                 try {
                     const response = await axios.get(`${BASE_URL}/getBusiness/${businessId}`, config);
-                    const result = response.data.data[0];
+                    const result = response.data.data;
                     const sortedComments = Object.values(result.comments).sort((a, b) => b.id - a.id);
                     result.comments = sortedComments;
                     setBusiness(result);
